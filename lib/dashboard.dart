@@ -85,7 +85,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'Welcome to your Dashboard!',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
             ),
-            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

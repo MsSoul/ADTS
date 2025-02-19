@@ -3,13 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../services/items_api.dart';
 import 'borrowing_transaction.dart';
-import 'borrowing_transaction_table.dart';
-
-
-class AppColors {
-  static const Color primaryColor = Color(0xFF003366); // Deep Blue
-  static const Color accentColor = Color(0xFFFFD700); // Gold
-}
+import 'table_borrowing_transaction.dart';
+import '../design/colors.dart';
 
 class BorrowingItemsScreen extends StatefulWidget {
   final int currentDptId; 
@@ -41,6 +36,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
   void initState() {
     super.initState();
     currentDptId = widget.currentDptId;
+    log.i("Current Department ID: $currentDptId");
     _loadItems();
   }
 
@@ -140,7 +136,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                     children: [
                       // Search Bar
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.only(bottom: 5),
                         child: TextField(
                           controller: _searchController,
                           decoration: InputDecoration(labelText: 'Search Items',labelStyle: const TextStyle(  color: AppColors.primaryColor,  fontWeight: FontWeight.bold,
@@ -166,7 +162,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                             enabledBorder: OutlineInputBorder(
                               borderSide:
                                   const BorderSide(color: AppColors.primaryColor),
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           onChanged: (value) => _searchItems(value),
@@ -175,7 +171,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
 
                       // Table Section
                       Container(
-                        padding: const EdgeInsets.all(10), // Table Padding
+                        padding: const EdgeInsets.all(5), // Table Padding
                         decoration: BoxDecoration(
                           border: Border.all(
                               color: AppColors.primaryColor, width: 2),
@@ -203,10 +199,10 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                                DataCell(
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primaryColor, // Set button background color
-                                      foregroundColor: Colors.white, // Set text color
+                                      backgroundColor: AppColors.primaryColor, 
+                                      foregroundColor: Colors.white, 
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8), // Optional: Rounded corners
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
                                     onPressed: () {
@@ -217,7 +213,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                                           itemId: item['id'] ?? 0,   
                                           itemName: item['name'],
                                           description: item['description'],
-                                          currentDptId: item['currentDptId'] ?? widget.currentDptId, // Provide a default value if currentDptId is null
+                                          currentDptId: item['currentDptId'] ?? widget.currentDptId, 
                                         ),
                                       );
                                     },
@@ -241,7 +237,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                       if (filteredItems.isNotEmpty)
                         Align(alignment: Alignment.bottomRight,
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 10),
+                            padding: const EdgeInsets.only(top: 5),
                             child: Row(mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(icon: const Icon(Icons.arrow_back_ios,color: AppColors.primaryColor),
@@ -249,7 +245,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                                 ),
 
                                 // Page Number Input
-                                SizedBox(width: 40,height: 35,
+                                SizedBox(width: 25,height: 25,
                                   child: TextField(controller: _pageController,textAlign: TextAlign.center,keyboardType: TextInputType.number,
                                     decoration: InputDecoration(border: OutlineInputBorder(  borderRadius: BorderRadius.circular(8),
                                         borderSide: const BorderSide(color: AppColors.primaryColor),
@@ -262,7 +258,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                                 // Total Pages
                                 Padding(
                                   padding:const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Text("/ $totalPages",style: const TextStyle(    fontSize: 16,    fontWeight: FontWeight.bold),
+                                  child: Text("/ $totalPages",style: const TextStyle(    fontSize: 14,    fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 // Next Page Button
@@ -273,7 +269,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                               ],
                             ),
                           ),
-                        ),const SizedBox(height: 20),
+                        ),const SizedBox(height: 15),
 
             // Borrowing Transactions Table
                      if (transactions.isNotEmpty)

@@ -63,7 +63,7 @@ class LoginScreenState extends State<LoginScreen> {
     // Extract user details
     String? userId = response["id_number"]?.toString();
     int? empId = response["emp_id"]; // ✅ Extract emp_id
-    int currentDptId = response["current_dpt_id"] ?? -1; // ✅ Extract current_dpt_id
+    int currentDptId = response["currentDptId"] ?? -1; // ✅ Extract current_dpt_id
     String? firstName = response["firstLetter"]?.toString();
 
     // Store details in SharedPreferences

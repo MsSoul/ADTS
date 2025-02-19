@@ -1,5 +1,6 @@
+//filename: lib/table_borrowing_transaction.dart
 import 'package:flutter/material.dart';
-import 'items.dart'; 
+import 'design/colors.dart';
 
 class BorrowingTransactionTable extends StatelessWidget {
   final int? currentDptId;
@@ -23,15 +24,17 @@ class BorrowingTransactionTable extends StatelessWidget {
                     (states) => AppColors.accentColor),
                 columns: const [
                   DataColumn(label: Text('Item', style: TextStyle(color: Colors.white))),
+                  DataColumn(label: Text('Description', style: TextStyle(color: Colors.white))),
                   DataColumn(label: Text('Quantity', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Date Borrowed', style: TextStyle(color: Colors.white))),
+                  DataColumn(label: Text('Borrower', style: TextStyle(color: Colors.white))),
                   DataColumn(label: Text('Status', style: TextStyle(color: Colors.white))),
                 ],
                 rows: transactions.map((transaction) {
                   return DataRow(cells: [
                     DataCell(Text(transaction['item_name'])),
+                    DataCell(Text(transaction['Description'])),
                     DataCell(Text(transaction['quantity'].toString())),
-                    DataCell(Text(transaction['date_borrowed'] ?? 'N/A')),
+                    DataCell(Text(transaction['Borrower'] ?? 'N/A')),
                     DataCell(Text(transaction['status'] ?? 'Pending')),
                   ]);
                 }).toList(),
