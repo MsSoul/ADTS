@@ -33,6 +33,7 @@ class BorrowingTransactionState extends State<BorrowingTransaction> {
 
   String searchType = "ID Number";
   bool isLoading = false;
+  bool _borrowerSelected = false;
   List<Map<String, dynamic>> searchResults = [];
 
   Future<void> fetchBorrowerDetails(String input) async {
@@ -101,6 +102,7 @@ class BorrowingTransactionState extends State<BorrowingTransaction> {
                     _buildInfoBox('Description:', widget.description),
                     _buildTextField('Quantity:', 'Enter Quantity', controller: qtyController),
                     _buildBorrowerField(),
+                    if (!_borrowerSelected) _buildSearchResultsList(),
                     _buildActionButtons(context),
                   ],
                 ),
@@ -122,65 +124,76 @@ class BorrowingTransactionState extends State<BorrowingTransaction> {
   }
 
   Widget _buildInfoBox(String label, String text) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 238, 247, 255),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.primaryColor, width: 1.5),
-          ),
-          child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+      Container(
+        height: 40,
+        width: double.infinity, // Adjust width if needed
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8), // Reduce padding
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 238, 247, 255),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: AppColors.primaryColor, width: 1),
         ),
-        const SizedBox(height: 5),
-      ],
-    );
-  }
+        child: Text(text, style: const TextStyle(fontSize: 14)), // Decrease font size
+      ),
+      const SizedBox(height: 3), // Reduce space
+    ],
+  );
+}
 
-  Widget _buildTextField(String label, String hint, {TextEditingController? controller}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        TextField(
+Widget _buildTextField(String label, String hint, {TextEditingController? controller}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+      SizedBox(
+        height: 40, // Set fixed height
+        child: TextField(
           controller: controller,
           decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8), 
             filled: true,
             fillColor: Colors.white,
             hintText: hint,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppColors.primaryColor, width: 1.5),
+              borderRadius: BorderRadius.circular(6),
+              borderSide: const BorderSide(color: AppColors.primaryColor, width: 1),
             ),
           ),
         ),
-        const SizedBox(height: 5),
-      ],
-    );
-  }
-
- Widget _buildBorrowerField() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _buildInfoBox('Borrower:', borrowerController.text),
-      Row(
-        children: [
-          _buildDropdown(),
-          const SizedBox(width: 10),
-          Expanded(child: _buildSearchField()),
-        ],
       ),
-      const SizedBox(height: 5), // Space between search field and results
-      if (isLoading) const CircularProgressIndicator(),
-      if (searchResults.isNotEmpty) _buildSearchResultsList(),
+      const SizedBox(height: 3),
     ],
   );
 }
+
+   Widget _buildBorrowerField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInfoBox('Borrower:', borrowerController.text),
+        if (!_borrowerSelected) // Show only if NOT selected
+          Row(
+            children: [
+              _buildDropdown(),
+              const SizedBox(width: 10),
+              Expanded(child: _buildSearchField()),
+            ],
+          ),
+        if (!_borrowerSelected && isLoading) const CircularProgressIndicator(),
+
+        if (!_borrowerSelected && searchResults.isNotEmpty)
+          Stack(
+            children: [
+              _buildSearchResultsList(), 
+            ],
+          ),
+      ],
+    );
+  }
 
 Widget _buildSearchField() {
   return TextField(
@@ -202,6 +215,7 @@ Widget _buildSearchField() {
                 setState(() {
                   borrowerController.clear(); // Clear text
                   searchResults = []; // Hide results
+                   _borrowerSelected = false;
                 });
               },
             )
@@ -248,6 +262,7 @@ Widget _buildSearchResultsList() {
                   setState(() {
                     borrowerController.text = formattedName;
                     searchResults = [];
+                    _borrowerSelected = true;
                   });
                 },
                 child: Padding(
@@ -289,13 +304,14 @@ String _capitalizeName(String name) {
 Widget _buildDropdown() {
   return SizedBox(
     width: 130, 
+    height: 40,
     child: DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.primaryColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Reduce padding
         child: DropdownButton<String>(
           value: searchType,
           isExpanded: true,
@@ -304,17 +320,18 @@ Widget _buildDropdown() {
               searchType = newValue!;
               borrowerController.clear();
               searchResults = [];
+               _borrowerSelected = false;
             });
           },
           items: ['ID Number', 'Name'].map((String value) {
             return DropdownMenuItem<String>(
               value: value,
-              child: Text(value, style: const TextStyle(color: Colors.white)),
+              child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)), // Smaller text
             );
           }).toList(),
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.white, size: 18), // Smaller icon
           dropdownColor: AppColors.primaryColor,
-          underline: Container(), // Remove default underline
+          underline: Container(),
         ),
       ),
     ),
@@ -322,26 +339,39 @@ Widget _buildDropdown() {
 }
 
 Widget _buildActionButtons(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.grey[700],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        SizedBox(
+          width: 100,
+          child: ElevatedButton(
+            onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                });
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.grey[700],
+              backgroundColor: Colors.grey[200],
+            ),
+            child: const Text('Cancel'),
+          ),
         ),
-        child: const Text('Cancel'),
-      ),
-      const SizedBox(width: 10),
-      ElevatedButton(
-        onPressed: () => Navigator.of(context).pop(),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryColor,
-          foregroundColor: Colors.white,
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 100,
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Add'),
+          ),
         ),
-        child: const Text('Add'),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 }

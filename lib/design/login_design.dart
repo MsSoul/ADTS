@@ -31,29 +31,33 @@ Widget buildTextField(
   bool obscureText = false,
   Function()? onToggleVisibility,
 }) {
-  return TextField(
-    controller: controller,
-    obscureText: obscureText,
-    decoration: InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: AppColors.primaryColor),
-        borderRadius: BorderRadius.circular(10),
+  return SizedBox(
+    height: 55, // Adjust the height as needed
+    child: TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: AppColors.primaryColor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: AppColors.primaryColor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12), // Adjust padding for text alignment
+        suffixIcon: onToggleVisibility != null
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_off : Icons.visibility,
+                  color: const Color.fromARGB(255, 122, 116, 116), 
+                ),
+                onPressed: onToggleVisibility,
+              )
+            : null,
       ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: AppColors.primaryColor),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      suffixIcon: onToggleVisibility != null
-          ? IconButton(
-              icon: Icon(
-                obscureText ? Icons.visibility_off : Icons.visibility,
-                color: Colors.grey, // Adjust color as needed
-              ),
-              onPressed: onToggleVisibility,
-            )
-          : null, // Show icon only for password fields
     ),
   );
 }
@@ -79,6 +83,7 @@ Widget buildForgotPasswordButton(BuildContext context, VoidCallback onPressed) {
 // Login Button
 Widget buildLoginButton(String buttonText, VoidCallback onPressed) {
   return SizedBox(
+    height: 55,
     width: double.infinity,
     child: ElevatedButton(
       onPressed: () {
@@ -86,7 +91,7 @@ Widget buildLoginButton(String buttonText, VoidCallback onPressed) {
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryColor,
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),

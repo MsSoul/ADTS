@@ -45,7 +45,7 @@ class HomeScreenState extends State<HomeScreen> {
           _currentScreen = DashboardScreen(empId: empId, currentDptId: currentDptId);
           break;
         case 'Items':
-          _currentScreen = BorrowingItemsScreen(currentDptId: currentDptId);
+          _currentScreen = BorrowingItemsScreen(currentDptId: currentDptId, empId: empId);
           break;
       }
     });

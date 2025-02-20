@@ -122,11 +122,11 @@ class LoginScreenState extends State<LoginScreen> {
                   children: [
                     // Logo
                     buildLogo(constraints.maxWidth),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
 
                     // Username Field
                     buildTextField('ID Number', controller: _usernameController),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
 
                     // Password Field with Eye Icon
                     buildTextField(
@@ -139,13 +139,8 @@ class LoginScreenState extends State<LoginScreen> {
                         });
                       },
                     ),
-
-                    const SizedBox(height: 20),
-
                     // Forgot Password Button
                     buildForgotPasswordButton(context, () {}),
-
-                    const SizedBox(height: 10),
 
                     // Login Button
                     buildLoginButton('Log In', _handleLogin),

@@ -111,10 +111,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           : SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: DataTable(
-                                border: TableBorder.all(color: Colors.black, width: 1),
+                                border: TableBorder.all(color: AppColors.primaryColor, width: 1.5),
+                                dataRowMinHeight: 40, 
+                                dataRowMaxHeight: 40,
                                 headingRowColor: WidgetStateColor.resolveWith(
                                   (states) => AppColors.primaryColor,
                                 ),
+                                headingRowHeight: 40,
                                 columns: const [
                                   DataColumn(label: Center(child: Text('Name', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
                                   DataColumn(label: Center(child: Text('Description', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),

@@ -8,7 +8,8 @@ import '../design/colors.dart';
 
 class BorrowingItemsScreen extends StatefulWidget {
   final int currentDptId; 
-  const BorrowingItemsScreen({super.key, required this.currentDptId});
+  final int empId;
+  const BorrowingItemsScreen({super.key, required this.currentDptId, required this.empId});
 
   @override
   State<BorrowingItemsScreen> createState() => _BorrowingItemsScreenState();
@@ -57,7 +58,7 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
               'are_no': item['are_no'],
               'prop_no': item['prop_no'],
               'serial_no': item['serial_no'],
-              'empId': empId, // Ensure empId is included in the item map
+              'empId': empId,
             }).toList();
         filteredItems = List.from(allItems);
         isLoading = false;
@@ -136,38 +137,46 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                     children: [
                       // Search Bar
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 5),
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(labelText: 'Search Items',labelStyle: const TextStyle(  color: AppColors.primaryColor,  fontWeight: FontWeight.bold,
-                            ),
-                            prefixIcon: _searchController.text.isEmpty
-                                ? const Icon(Icons.search,
-                                    color: AppColors.primaryColor)
-                                : null,
-                            suffixIcon: _searchController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear, color: AppColors.primaryColor),
-                                    onPressed: () {
-                                      setState(() {
-                                        _searchController.clear();
-                                        _searchItems('');
-                                      });
-                                    },
-                                  )
-                                : null,
-                            focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  const BorderSide(color: AppColors.primaryColor),
-                              borderRadius: BorderRadius.circular(10),
+                            padding: const EdgeInsets.only(bottom: 5),
+                            child: SizedBox(
+                              height: 40, // Set the height to 40px
+                              child: TextField(
+                                controller: _searchController,
+                                decoration: InputDecoration(
+                                  labelText: 'Search Items',
+                                  labelStyle: const TextStyle(
+                                    color: AppColors.primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                  prefixIcon: _searchController.text.isEmpty
+                                      ? const Icon(Icons.search, color: AppColors.primaryColor)
+                                      : null,
+                                  suffixIcon: _searchController.text.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(Icons.clear, color: AppColors.primaryColor),
+                                          onPressed: () {
+                                            setState(() {
+                                              _searchController.clear();
+                                              _searchItems('');
+                                            });
+                                          },
+                                        )
+                                      : null,
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: AppColors.primaryColor , width: 2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10), 
+                                ),
+                                onChanged: (value) => _searchItems(value),
+                              ),
                             ),
                           ),
-                          onChanged: (value) => _searchItems(value),
-                        ),
-                      ),
 
                       // Table Section
                       Container(
@@ -181,8 +190,11 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                           scrollDirection: Axis.horizontal,
                           child: DataTable(
                             headingRowColor: WidgetStateColor.resolveWith((states) => AppColors.primaryColor),
+                                dataRowMinHeight: 40, 
+                                dataRowMaxHeight: 40,
+                                headingRowHeight: 40,
                             columns: const [
-                              DataColumn(label: Text('     Action', style: TextStyle(color: Colors.white))),
+                              DataColumn(label: Center(child: Text(' Action', style: TextStyle(color: Colors.white)))),
                               DataColumn(label: Text('Name', style: TextStyle(color: Colors.white))),
                               DataColumn(label: Text('Description', style: TextStyle(color: Colors.white))),
                               DataColumn(label: Text('Quantity', style: TextStyle(color: Colors.white))),
@@ -197,8 +209,11 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                                 .map((item) {
                               return DataRow(cells: [
                                DataCell(
-                                  ElevatedButton(
+                                SizedBox(
+                                  height: 35, // Set button height to 35px
+                                  child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
                                       backgroundColor: AppColors.primaryColor, 
                                       foregroundColor: Colors.white, 
                                       shape: RoundedRectangleBorder(
@@ -209,17 +224,21 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
                                       showDialog(
                                         context: context,
                                         builder: (context) => BorrowingTransaction(
-                                          empId: item['empId'] ?? 0, 
-                                          itemId: item['id'] ?? 0,   
+                                          empId: widget.empId, 
+                                          itemId: item['id'],   
                                           itemName: item['name'],
                                           description: item['description'],
-                                          currentDptId: item['currentDptId'] ?? widget.currentDptId, 
+                                          currentDptId: widget.currentDptId, 
+                                          //borrowerName:  item['borrower'] ,
+                                          //quantity: item['quantity'],
                                         ),
                                       );
                                     },
                                     child: const Text('Add'),
                                   ),
                                 ),
+                              ),
+
                                     DataCell(Text(item['name'])),
                                     DataCell(Text(item['description'])),
                                     DataCell(Text(item['quantity'].toString())),
@@ -235,45 +254,66 @@ class _BorrowingItemsScreenState extends State<BorrowingItemsScreen> {
 
                       // Pagination Controls (Right Corner Below the Table)
                       if (filteredItems.isNotEmpty)
-                        Align(alignment: Alignment.bottomRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 5),
-                            child: Row(mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(icon: const Icon(Icons.arrow_back_ios,color: AppColors.primaryColor),
-                                  onPressed: _prevPage,
-                                ),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back_ios, color: AppColors.primaryColor),
+                                onPressed: _prevPage,
+                              ),
 
-                                // Page Number Input
-                                SizedBox(width: 25,height: 25,
-                                  child: TextField(controller: _pageController,textAlign: TextAlign.center,keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(border: OutlineInputBorder(  borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(color: AppColors.primaryColor),
-                                      ),
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                              // Page Number Input
+                              SizedBox(
+                                width: 30, // Adjust width to fit 2-3 digit numbers
+                                height: 30, // Slightly taller for better alignment
+                                child: TextField(
+                                  controller: _pageController,
+                                  textAlign: TextAlign.center,
+                                  keyboardType: TextInputType.number,
+                                  style: const TextStyle(fontSize: 12), // Slightly smaller font
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: const BorderSide(color: AppColors.primaryColor),
                                     ),
-                                    onSubmitted: _jumpToPage,
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 3, horizontal: 3), // Balanced padding
                                   ),
+                                  onSubmitted: _jumpToPage,
                                 ),
-                                // Total Pages
-                                Padding(
-                                  padding:const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Text("/ $totalPages",style: const TextStyle(    fontSize: 14,    fontWeight: FontWeight.bold),
-                                  ),
+                              ),
+
+                              // Total Pages
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(
+                                  "/ $totalPages",
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), // Smaller font
                                 ),
-                                // Next Page Button
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_forward_ios,color: AppColors.primaryColor),
-                                  onPressed: _nextPage,
-                                ),
-                              ],
-                            ),
+                              ),
+
+                              // Next Page Button
+                              IconButton(
+                                icon: const Icon(Icons.arrow_forward_ios, color: AppColors.primaryColor),
+                                onPressed: _nextPage,
+                              ),
+                            ],
                           ),
-                        ),const SizedBox(height: 15),
+                        ),
+                      ),
+                    const SizedBox(height: 15),
+
 
             // Borrowing Transactions Table
-                     if (transactions.isNotEmpty)
-            BorrowingTransactionTable(transactions: transactions , currentDptId: currentDptId),
+            if (transactions.isNotEmpty)
+           BorrowingTransactionTable(
+              initialTransactions: transactions,  
+              currentDptId: currentDptId,       
+              empId: empId,
+            ),
         ],
       ),)
     );
