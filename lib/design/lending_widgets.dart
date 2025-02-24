@@ -1,4 +1,4 @@
-//filename: lib/design/borrowing_widgets.dart
+//filename: lib/design/lending_widgets.dart
 import 'package:flutter/material.dart';
 import 'colors.dart';
 
@@ -104,7 +104,9 @@ Widget buildActionButtons(BuildContext context, TextEditingController qtyControl
               'description': widget.description,
               'quantity': int.tryParse(qtyController.text),
               'borrowerName': borrowerController.text,
+             // initialTransactions: widget.transactionList,
             });
+
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primaryColor,

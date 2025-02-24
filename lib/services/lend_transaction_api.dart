@@ -1,4 +1,4 @@
-//filname:lib/service/borrow_transaction_api.dart
+//filname:lib/service/lend_transaction_api.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';

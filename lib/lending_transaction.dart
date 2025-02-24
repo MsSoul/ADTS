@@ -1,31 +1,34 @@
+//filename; lib/lending_transaction.dart
 import 'package:flutter/material.dart';
 import 'design/colors.dart';
-import '../services/borrow_transaction_api.dart';
+import 'services/lend_transaction_api.dart';
 import '../services/config.dart';
 import 'package:logger/logger.dart';
-import 'design/borrowing_widgets.dart'; // Import the newly created widgets
+import 'design/lending_widgets.dart'; 
 
-class BorrowingTransaction extends StatefulWidget {
+class LendingTransaction extends StatefulWidget {
   final int empId;
   final int itemId;
   final String itemName;
   final String description;
   final int currentDptId;
+  final List<Map<String, dynamic>> initialTransactions;
 
-  const BorrowingTransaction({
+  const LendingTransaction({
     super.key,
     required this.empId,
     required this.itemId,
     required this.itemName,
     required this.description,
     required this.currentDptId,
+    required this.initialTransactions,
   });
 
   @override
-  BorrowingTransactionState createState() => BorrowingTransactionState();
+  LendingTransactionState createState() => LendingTransactionState();
 }
 
-class BorrowingTransactionState extends State<BorrowingTransaction> {
+class LendingTransactionState extends State<LendingTransaction> {
   final TextEditingController qtyController = TextEditingController();
   final TextEditingController borrowerController = TextEditingController();
   final BorrowTransactionApi borrowApi = BorrowTransactionApi(Config.baseUrl);
@@ -128,7 +131,6 @@ class BorrowingTransactionState extends State<BorrowingTransaction> {
     );
   }
 
-  // Other methods (_buildDropdown, _buildSearchField, _buildSearchResultsList, etc.) remain unchanged.
   Widget _buildDropdown() {
   return SizedBox(
     width: 130, 
@@ -139,7 +141,7 @@ class BorrowingTransactionState extends State<BorrowingTransaction> {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Reduce padding
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), 
         child: DropdownButton<String>(
           value: searchType,
           isExpanded: true,
@@ -203,7 +205,7 @@ Widget _buildSearchField() {
 
 Widget _buildSearchResultsList() {
   return Padding(
-    padding: const EdgeInsets.only(left: 140), // External left padding
+    padding: const EdgeInsets.only(left: 140), 
     child: Positioned(
       right: 10,
       top: 50,
@@ -212,10 +214,10 @@ Widget _buildSearchResultsList() {
         borderRadius: BorderRadius.circular(5),
         color: Colors.white,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 200), // Limit max height
+          constraints: const BoxConstraints(maxHeight: 200), 
           child: ListView.builder(
             padding: EdgeInsets.zero,
-            itemCount: searchResults.length > 5 ? 5 : searchResults.length, // Limit to 5 users
+            itemCount: searchResults.length > 5 ? 5 : searchResults.length, 
             shrinkWrap: true,
             itemBuilder: (context, index) {
               final borrower = searchResults[index];
