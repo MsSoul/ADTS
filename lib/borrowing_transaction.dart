@@ -1,9 +1,9 @@
-//filename:lib/ borrowing_transaction.dart
 import 'package:flutter/material.dart';
 import 'design/colors.dart';
 import '../services/borrow_transaction_api.dart';
 import '../services/config.dart';
 import 'package:logger/logger.dart';
+import 'design/borrowing_widgets.dart'; // Import the newly created widgets
 
 class BorrowingTransaction extends StatefulWidget {
   final int empId;
@@ -37,42 +37,38 @@ class BorrowingTransactionState extends State<BorrowingTransaction> {
   List<Map<String, dynamic>> searchResults = [];
 
   Future<void> fetchBorrowerDetails(String input) async {
-  logger.i("Fetching borrower details for Department ID: ${widget.currentDptId}");
+    logger.i("Fetching borrower details for Department ID: ${widget.currentDptId}");
 
-  if (widget.currentDptId == -1) {
-    logger.w("Invalid Department ID - Using Default ID");
-    return;
-  }
+    if (widget.currentDptId == -1) {
+      logger.w("Invalid Department ID - Using Default ID");
+      return;
+    }
 
-  setState(() => isLoading = true);
+    setState(() => isLoading = true);
 
-  try {
-    final borrowerData = await borrowApi.fetchBorrowers(
-      widget.currentDptId.toString(),
-      input,
-      searchType,
-      widget.empId.toString(),
-    );
+    try {
+      final borrowerData = await borrowApi.fetchBorrowers(
+        widget.currentDptId.toString(),
+        input,
+        searchType,
+        widget.empId.toString(),
+      );
 
-    if (borrowerData.isNotEmpty) {
-      logger.i("First borrower: ${borrowerData[0]}");
       setState(() {
         searchResults = borrowerData;
         isLoading = false;
       });
-      logger.i("Fetched ${borrowerData.length} borrower(s)");
-    } else {
-      logger.w("No borrowers found.");
-      setState(() {
-        searchResults = [];
-        isLoading = false;
-      });
+
+      if (borrowerData.isEmpty) {
+        logger.w("No borrowers found.");
+      } else {
+        logger.i("Fetched ${borrowerData.length} borrower(s)");
+      }
+    } catch (e, stackTrace) {
+      logger.e("Error fetching borrower details:", error: e, stackTrace: stackTrace);
+      setState(() => isLoading = false);
     }
-  } catch (e, stackTrace) {
-    logger.e("Error fetching borrower details:", error: e, stackTrace: stackTrace);
-    setState(() => isLoading = false);
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -97,13 +93,12 @@ class BorrowingTransactionState extends State<BorrowingTransaction> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildDialogTitle(),
-                    _buildInfoBox('Item Name:', widget.itemName),
-                    _buildInfoBox('Description:', widget.description),
-                    _buildTextField('Quantity:', 'Enter Quantity', controller: qtyController),
+                    buildDialogTitle(),
+                    buildInfoBox('Item Name:', widget.itemName),
+                    buildInfoBox('Description:', widget.description),
+                    buildTextField('Quantity:', 'Enter Quantity', controller: qtyController),
                     _buildBorrowerField(),
-                    if (!_borrowerSelected) _buildSearchResultsList(),
-                    _buildActionButtons(context),
+                    buildActionButtons(context, qtyController, borrowerController, widget),
                   ],
                 ),
               ),
@@ -114,68 +109,12 @@ class BorrowingTransactionState extends State<BorrowingTransaction> {
     );
   }
 
-  Widget _buildDialogTitle() {
-    return const Center(
-      child: Text(
-        'Borrowing Transaction',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Widget _buildInfoBox(String label, String text) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-      Container(
-        height: 40,
-        width: double.infinity, // Adjust width if needed
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8), // Reduce padding
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 238, 247, 255),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: AppColors.primaryColor, width: 1),
-        ),
-        child: Text(text, style: const TextStyle(fontSize: 14)), // Decrease font size
-      ),
-      const SizedBox(height: 3), // Reduce space
-    ],
-  );
-}
-
-Widget _buildTextField(String label, String hint, {TextEditingController? controller}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-      SizedBox(
-        height: 40, // Set fixed height
-        child: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8), 
-            filled: true,
-            fillColor: Colors.white,
-            hintText: hint,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: AppColors.primaryColor, width: 1),
-            ),
-          ),
-        ),
-      ),
-      const SizedBox(height: 3),
-    ],
-  );
-}
-
-   Widget _buildBorrowerField() {
+  Widget _buildBorrowerField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInfoBox('Borrower:', borrowerController.text),
-        if (!_borrowerSelected) // Show only if NOT selected
+        buildInfoBox('Borrower:', borrowerController.text),
+        if (!_borrowerSelected)
           Row(
             children: [
               _buildDropdown(),
@@ -184,17 +123,48 @@ Widget _buildTextField(String label, String hint, {TextEditingController? contro
             ],
           ),
         if (!_borrowerSelected && isLoading) const CircularProgressIndicator(),
-
-        if (!_borrowerSelected && searchResults.isNotEmpty)
-          Stack(
-            children: [
-              _buildSearchResultsList(), 
-            ],
-          ),
+        if (!_borrowerSelected && searchResults.isNotEmpty) _buildSearchResultsList(),
       ],
     );
   }
 
+  // Other methods (_buildDropdown, _buildSearchField, _buildSearchResultsList, etc.) remain unchanged.
+  Widget _buildDropdown() {
+  return SizedBox(
+    width: 130, 
+    height: 40,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Reduce padding
+        child: DropdownButton<String>(
+          value: searchType,
+          isExpanded: true,
+          onChanged: (String? newValue) {
+            setState(() {
+              searchType = newValue!;
+              borrowerController.clear();
+              searchResults = [];
+               _borrowerSelected = false;
+            });
+          },
+          items: ['ID Number', 'Name'].map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)), // Smaller text
+            );
+          }).toList(),
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.white, size: 18), // Smaller icon
+          dropdownColor: AppColors.primaryColor,
+          underline: Container(),
+        ),
+      ),
+    ),
+  );
+}
 Widget _buildSearchField() {
   return TextField(
     controller: borrowerController,
@@ -300,78 +270,4 @@ String _capitalizeName(String name) {
     return word[0].toUpperCase() + word.substring(1).toLowerCase();
   }).join(' ');
 }
-
-Widget _buildDropdown() {
-  return SizedBox(
-    width: 130, 
-    height: 40,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.primaryColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Reduce padding
-        child: DropdownButton<String>(
-          value: searchType,
-          isExpanded: true,
-          onChanged: (String? newValue) {
-            setState(() {
-              searchType = newValue!;
-              borrowerController.clear();
-              searchResults = [];
-               _borrowerSelected = false;
-            });
-          },
-          items: ['ID Number', 'Name'].map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)), // Smaller text
-            );
-          }).toList(),
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.white, size: 18), // Smaller icon
-          dropdownColor: AppColors.primaryColor,
-          underline: Container(),
-        ),
-      ),
-    ),
-  );
-}
-
-Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        SizedBox(
-          width: 100,
-          child: ElevatedButton(
-            onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                });
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey[700],
-              backgroundColor: Colors.grey[200],
-            ),
-            child: const Text('Cancel'),
-          ),
-        ),
-        const SizedBox(width: 10),
-        SizedBox(
-          width: 100,
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Add'),
-          ),
-        ),
-      ],
-    );
-  }
 }
