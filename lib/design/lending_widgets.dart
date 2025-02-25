@@ -1,11 +1,17 @@
-//filename: lib/design/lending_widgets.dart
+// filename: lib/design/lending_widgets.dart
 import 'package:flutter/material.dart';
 import 'colors.dart';
+import 'package:logger/logger.dart';
+import '../services/lend_transaction_api.dart';
+import '../services/config.dart'; // Import Config
+
+final Logger logger = Logger();
+final LendTransactionApi lendTransactionApi = LendTransactionApi(Config.baseUrl); 
 
 Widget buildDialogTitle() {
   return const Center(
     child: Text(
-      'Borrowing Transaction',
+      'Request Lent Item',
       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
     ),
   );
@@ -58,13 +64,19 @@ Widget buildTextField(String label, String hint, {TextEditingController? control
   );
 }
 
-//borrowinng_transaction.dart add button
-Widget buildActionButtons(BuildContext context, TextEditingController qtyController, TextEditingController borrowerController, dynamic widget) {
+// Add button function
+Widget buildActionButtons(
+  BuildContext context, 
+  TextEditingController qtyController, 
+  TextEditingController borrowerController, 
+  dynamic widget, 
+  {required int? selectedBorrowerId} 
+) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.end,
     children: [
       SizedBox(
-        width: 100,
+        width: 120,
         child: ElevatedButton(
           onPressed: () {
             Navigator.of(context).pop();
@@ -78,43 +90,177 @@ Widget buildActionButtons(BuildContext context, TextEditingController qtyControl
       ),
       const SizedBox(width: 10),
       SizedBox(
-        width: 100,
+        width: 120,
         child: ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             int? quantity = int.tryParse(qtyController.text);
-            if (quantity == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Invalid quantity')),
-              );
+            
+            if (quantity == null || quantity <= 0) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a valid quantity.')),
+                );
+              }
               return;
             }
 
-            if (borrowerController.text.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please select a borrower')),
-              );
+            if (selectedBorrowerId == null) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please select a borrower.')),
+                );
+              }
               return;
             }
 
-            Navigator.of(context).pop({
+            // Create transaction data
+            Map<String, dynamic> transactionData = {
               'current_dpt_Id': widget.currentDptId,
               'empId': widget.empId,
               'itemId': widget.itemId,
               'itemName': widget.itemName,
               'description': widget.description,
-              'quantity': int.tryParse(qtyController.text),
-              'borrowerName': borrowerController.text,
-             // initialTransactions: widget.transactionList,
-            });
+              'quantity': quantity,
+              'borrower': borrowerController.text,
+              'borrowerId': selectedBorrowerId,
+              'currentDptId': widget.currentDptId,  
+            };
 
+            // 🔍 Log the transaction data
+            logger.i("Transaction Data: $transactionData");
+
+            // Show confirmation dialog
+            bool confirm = await showDialog(
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return AlertDialog(
+                  title: const Text('Confirm Request'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(fontSize: 14, color: Colors.black),
+                          children: [
+                            const TextSpan(text: "Item: ", style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: transactionData['itemName']),
+                          ],
+                        ),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(fontSize: 14, color: Colors.black),
+                          children: [
+                            const TextSpan(text: "Description: ", style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: transactionData['description']),
+                          ],
+                        ),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(fontSize: 14, color: Colors.black),
+                          children: [
+                            const TextSpan(text: "Quantity: ", style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: transactionData['quantity'].toString()),
+                          ],
+                        ),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(fontSize: 14, color: Colors.black),
+                          children: [
+                            const TextSpan(text: "Borrower Name: ", style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: transactionData['borrower'].toString()),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SizedBox(
+                            width: 120,
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(false),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[300],
+                                foregroundColor: Colors.black, 
+                              ),
+                              child: const Text('Cancel'),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: 120,
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(true),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Confirm'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (!context.mounted) return; // Check if the widget is still mounted
+
+            if (confirm == true) {
+              try {
+                // 🔥 Call API function to submit the transaction
+                final response = await lendTransactionApi.submitLendingTransaction(
+                empId: widget.empId,
+                itemId: widget.itemId,
+                itemName: widget.itemName,
+                description: widget.description,
+                quantity: quantity,
+                borrowerId: selectedBorrowerId,
+                currentDptId: widget.currentDptId, 
+                );
+logger.i("Submitting Lending Transaction with Borrower ID: $selectedBorrowerId");
+
+                if (context.mounted) {
+                  // 🎉 Success message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(response['message'] ?? 'Request submitted successfully!')),
+                  );
+
+                  // Close the dialog
+                  Navigator.of(context).pop();
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  // ❌ Error handling
+                  logger.e("Error submitting transaction: $e");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error submitting request: $e')),
+                  );
+                }
+              }
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primaryColor,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Add'),
+          child: const Text('Request'),
         ),
       ),
     ],
   );
 }
+
+
+
+

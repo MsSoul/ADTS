@@ -14,6 +14,7 @@ class LendingTransaction extends StatefulWidget {
   final int currentDptId;
   final List<Map<String, dynamic>> initialTransactions;
 
+
   const LendingTransaction({
     super.key,
     required this.empId,
@@ -31,47 +32,48 @@ class LendingTransaction extends StatefulWidget {
 class LendingTransactionState extends State<LendingTransaction> {
   final TextEditingController qtyController = TextEditingController();
   final TextEditingController borrowerController = TextEditingController();
-  final BorrowTransactionApi borrowApi = BorrowTransactionApi(Config.baseUrl);
+  final LendTransactionApi borrowApi = LendTransactionApi(Config.baseUrl);
   final Logger logger = Logger();
 
   String searchType = "ID Number";
   bool isLoading = false;
   bool _borrowerSelected = false;
   List<Map<String, dynamic>> searchResults = [];
+  int? selectedBorrowerId;
 
-  Future<void> fetchBorrowerDetails(String input) async {
-    logger.i("Fetching borrower details for Department ID: ${widget.currentDptId}");
+ Future<void> fetchBorrowerDetails(String input) async {
+  logger.i("Fetching borrower details for Department ID: ${widget.currentDptId}");
 
-    if (widget.currentDptId == -1) {
-      logger.w("Invalid Department ID - Using Default ID");
-      return;
-    }
-
-    setState(() => isLoading = true);
-
-    try {
-      final borrowerData = await borrowApi.fetchBorrowers(
-        widget.currentDptId.toString(),
-        input,
-        searchType,
-        widget.empId.toString(),
-      );
-
-      setState(() {
-        searchResults = borrowerData;
-        isLoading = false;
-      });
-
-      if (borrowerData.isEmpty) {
-        logger.w("No borrowers found.");
-      } else {
-        logger.i("Fetched ${borrowerData.length} borrower(s)");
-      }
-    } catch (e, stackTrace) {
-      logger.e("Error fetching borrower details:", error: e, stackTrace: stackTrace);
-      setState(() => isLoading = false);
-    }
+  if (widget.currentDptId == -1) {
+    logger.w("Invalid Department ID - Using Default ID");
+    return;
   }
+
+  setState(() => isLoading = true);
+
+  try {
+    final borrowerData = await borrowApi.fetchBorrowers(
+      widget.currentDptId.toString(),
+      input,  // Send search input (name, ID number, etc.)
+      searchType,
+      widget.empId.toString()
+    );
+
+    setState(() {
+      searchResults = borrowerData;
+      isLoading = false;
+    });
+
+    if (borrowerData.isEmpty) {
+      logger.w("No borrowers found.");
+    } else {
+      logger.i("Fetched ${borrowerData.length} borrower(s)");
+    }
+  } catch (e, stackTrace) {
+    logger.e("Error fetching borrower details:", error: e, stackTrace: stackTrace);
+    setState(() => isLoading = false);
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +103,7 @@ class LendingTransactionState extends State<LendingTransaction> {
                     buildInfoBox('Description:', widget.description),
                     buildTextField('Quantity:', 'Enter Quantity', controller: qtyController),
                     _buildBorrowerField(),
-                    buildActionButtons(context, qtyController, borrowerController, widget),
+                    buildActionButtons(context, qtyController, borrowerController, widget, selectedBorrowerId: selectedBorrowerId),
                   ],
                 ),
               ),
@@ -112,7 +114,7 @@ class LendingTransactionState extends State<LendingTransaction> {
     );
   }
 
-  Widget _buildBorrowerField() {
+Widget _buildBorrowerField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -130,8 +132,7 @@ class LendingTransactionState extends State<LendingTransaction> {
       ],
     );
   }
-
-  Widget _buildDropdown() {
+Widget _buildDropdown() {
   return SizedBox(
     width: 130, 
     height: 40,
@@ -202,10 +203,9 @@ Widget _buildSearchField() {
     },
   );
 }
-
 Widget _buildSearchResultsList() {
   return Padding(
-    padding: const EdgeInsets.only(left: 140), 
+    padding: const EdgeInsets.only(left: 140),
     child: Positioned(
       right: 10,
       top: 50,
@@ -214,14 +214,15 @@ Widget _buildSearchResultsList() {
         borderRadius: BorderRadius.circular(5),
         color: Colors.white,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 200), 
+          constraints: const BoxConstraints(maxHeight: 200),
           child: ListView.builder(
             padding: EdgeInsets.zero,
-            itemCount: searchResults.length > 5 ? 5 : searchResults.length, 
+            itemCount: searchResults.length > 5 ? 5 : searchResults.length,
             shrinkWrap: true,
             itemBuilder: (context, index) {
               final borrower = searchResults[index];
 
+              int? borrowerId = borrower['borrowerId']; 
               int? idNumber = borrower['ID_NUMBER'] is int ? borrower['ID_NUMBER'] : null;
               String formattedName = _capitalizeName(
                 '${borrower['FIRSTNAME'] ?? ''} '
@@ -230,13 +231,16 @@ Widget _buildSearchResultsList() {
               );
 
               return InkWell(
-                onTap: () {
-                  setState(() {
-                    borrowerController.text = formattedName;
-                    searchResults = [];
-                    _borrowerSelected = true;
-                  });
-                },
+              onTap: () {
+                setState(() {
+                  borrowerController.text = formattedName;
+                  selectedBorrowerId = borrowerId; 
+                  searchResults = [];
+                  _borrowerSelected = true;
+                });
+
+                logger.i("Selected Borrower: $formattedName (ID: $selectedBorrowerId)");
+              },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: Row(

@@ -1,52 +1,53 @@
 // filename: lib/table_borrowing_transaction.dart
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';  // Import Logger
 import 'design/colors.dart';
 import 'lending_transaction.dart';
 
-class BorrowingTransactionTable extends StatefulWidget {
+class LendingTransactionTable extends StatefulWidget {
   final int currentDptId;
   final int empId;
   final int itemId;
-  final String itemName; 
-  final String description; 
+  final String itemName;
+  final String description;
   final List<Map<String, dynamic>> initialTransactions;
 
-  const BorrowingTransactionTable({
+  const LendingTransactionTable({
     super.key,
     required this.initialTransactions,
     required this.currentDptId,
     required this.empId,
-    required this.itemId, 
-    required this.itemName, 
-    required this.description, 
+    required this.itemId,
+    required this.itemName,
+    required this.description,
   });
 
   @override
-  State<BorrowingTransactionTable> createState() =>
-      _BorrowingTransactionTableState();
+  State<LendingTransactionTable> createState() => _LendingTransactionTableState();
 }
 
-class _BorrowingTransactionTableState extends State<BorrowingTransactionTable> {
+class _LendingTransactionTableState extends State<LendingTransactionTable> {
   List<Map<String, dynamic>> transactions = [];
+  final Logger logger = Logger();  // Initialize Logger
 
   @override
   void initState() {
     super.initState();
     transactions = List.from(widget.initialTransactions);
+
+    // 🔍 Log fetched initial transactions
+    logger.i('Initial Transactions: ${widget.initialTransactions}');
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
-          child: _buildDataTable(),
-        ),
+        Expanded(child: _buildDataTable()),
+        const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: () {
-            _showBorrowingTransactionDialog();
-          },
-          child: const Text('Add'),
+          onPressed: _showBorrowingTransactionDialog,
+          child: const Text('Add Transaction'),
         ),
       ],
     );
@@ -58,7 +59,7 @@ class _BorrowingTransactionTableState extends State<BorrowingTransactionTable> {
       builder: (BuildContext context) {
         return LendingTransaction(
           empId: widget.empId,
-          itemId: widget.itemId, 
+          itemId: widget.itemId,
           itemName: widget.itemName,
           description: widget.description,
           currentDptId: widget.currentDptId,
@@ -66,20 +67,24 @@ class _BorrowingTransactionTableState extends State<BorrowingTransactionTable> {
         );
       },
     ).then((result) {
-      if (result != null && result is Map<String, dynamic>) { 
+      if (result != null && result is Map<String, dynamic>) {
+        logger.d('Transaction added: $result');  // Debug log
+
         setState(() {
           transactions.add({
             'item_name': result['itemName'],
-            'Description': result['description'],
+            'description': result['description'],
             'quantity': result['quantity'],
-            'Borrower': result['borrowerName'],
+            'borrower': result['borrowerName'],
           });
         });
+
+        logger.i('Updated Transactions List: $transactions');  // Info log
       }
     });
   }
 
-Widget _buildDataTable() {
+  Widget _buildDataTable() {
     return transactions.isNotEmpty
         ? Container(
             padding: const EdgeInsets.all(10),
@@ -94,22 +99,23 @@ Widget _buildDataTable() {
                   (states) => AppColors.accentColor,
                 ),
                 columns: const [
-                  DataColumn(label: Text('Item',    style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Description',    style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Quantity',    style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Borrower',    style: TextStyle(color: Colors.white))),
+                  DataColumn(label: Text('Item', style: TextStyle(color: Colors.white))),
+                  DataColumn(label: Text('Description', style: TextStyle(color: Colors.white))),
+                  DataColumn(label: Text('Quantity', style: TextStyle(color: Colors.white))),
+                  DataColumn(label: Text('Borrower', style: TextStyle(color: Colors.white))),
                 ],
                 rows: transactions.map((transaction) {
                   return DataRow(cells: [
                     DataCell(Text(transaction['item_name'] ?? '')),
-                    DataCell(Text(transaction['Description'] ?? '')),
+                    DataCell(Text(transaction['description'] ?? '')),
                     DataCell(Text(transaction['quantity'].toString())),
-                    DataCell(Text(transaction['Borrower'] ?? 'N/A')),
+                    DataCell(Text(transaction['borrower'] ?? 'N/A')),
                   ]);
                 }).toList(),
               ),
             ),
           )
-        : const SizedBox();
+        : const Center(child: Text('No transactions yet', style: TextStyle(color: Colors.grey)));
   }
 }
+*/

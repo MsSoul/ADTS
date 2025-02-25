@@ -2,8 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import '../services/items_api.dart';
-import 'lending_transaction.dart';
-import 'table_lending_transaction.dart';
+import 'lend_transaction.dart';
 import '../design/colors.dart';
 
 class LendingItemsScreen extends StatefulWidget {
@@ -236,7 +235,7 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                                         ),
                                       );
                                     },
-                                    child: const Text('Add'),
+                                    child: const Text('Lend'),
                                   ),
                                 ),
                               ),
@@ -270,19 +269,19 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
 
                               // Page Number Input
                               SizedBox(
-                                width: 30, // Adjust width to fit 2-3 digit numbers
-                                height: 30, // Slightly taller for better alignment
+                                width: 30, 
+                                height: 30,
                                 child: TextField(
                                   controller: _pageController,
                                   textAlign: TextAlign.center,
                                   keyboardType: TextInputType.number,
-                                  style: const TextStyle(fontSize: 12), // Slightly smaller font
+                                  style: const TextStyle(fontSize: 12),
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
                                       borderSide: const BorderSide(color: AppColors.primaryColor),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 3, horizontal: 3), // Balanced padding
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 3, horizontal: 3),
                                   ),
                                   onSubmitted: _jumpToPage,
                                 ),
@@ -293,7 +292,7 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 8),
                                 child: Text(
                                   "/ $totalPages",
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), // Smaller font
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), 
                                 ),
                               ),
 
@@ -306,21 +305,20 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                           ),
                         ),
                       ),
-                    const SizedBox(height: 15),
+                  const SizedBox(height: 15),
 
 
             // Borrowing Transactions Table
-            if (transactions.isNotEmpty)
-           BorrowingTransactionTable(
+   /*         if (transactions.isNotEmpty)
+           LendingTransactionTable(
               initialTransactions: transactions,  
               currentDptId: currentDptId,       
               empId: empId,
               itemName: itemName,
               description: description,
               itemId: itemId,
-             // quantity: quantity,
-
-            ),
+             //quantity: quantity,
+            ),*/
         ],
       ),)
     );
