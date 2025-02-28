@@ -38,15 +38,34 @@ Widget buildInfoBox(String label, String text) {
   );
 }
 
-Widget buildTextField(String label, String hint, {TextEditingController? controller}) {
+Widget buildTextField(String label, String hint, { 
+  TextEditingController? controller, 
+  Function(String)? onChanged, 
+  String? errorText, 
+}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+      Row(
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          if (errorText != null) // Show error message inline
+            Padding(
+              padding: const EdgeInsets.only(left: 8), // Add spacing from label
+              child: Text(
+                errorText,
+                style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
+      ),
+      const SizedBox(height: 3), // Small spacing
       SizedBox(
         height: 40,
         child: TextField(
           controller: controller,
+          onChanged: onChanged,
+          keyboardType: TextInputType.number, 
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8), 
             filled: true,
@@ -59,7 +78,7 @@ Widget buildTextField(String label, String hint, {TextEditingController? control
           ),
         ),
       ),
-      const SizedBox(height: 3),
+      const SizedBox(height: 3), // Keep spacing consistent
     ],
   );
 }
@@ -120,6 +139,7 @@ Widget buildActionButtons(
               context: context,
               builder: (BuildContext dialogContext) {
                 return AlertDialog(
+                  backgroundColor: Colors.white,
                   title: const Text('Confirm Request'),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,

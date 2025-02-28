@@ -42,6 +42,7 @@ class LendingTransactionState extends State<LendingTransaction> {
   bool _borrowerSelected = false;
   List<Map<String, dynamic>> searchResults = [];
   int? selectedBorrowerId;
+  String? quantityError;
 
 
  Future<void> fetchBorrowerDetails(String input) async {
@@ -105,7 +106,7 @@ class LendingTransactionState extends State<LendingTransaction> {
                     buildDialogTitle(),
                     buildInfoBox('Item Name:', widget.itemName),
                     buildInfoBox('Description:', widget.description),
-                    buildTextField('Quantity:', 'Enter Quantity', controller: qtyController),
+                    buildTextField('Quantity:', 'Enter Quantity', controller: qtyController, onChanged: _validateQuantity,errorText: quantityError,),
                     _buildBorrowerField(),
                     buildActionButtons(context, qtyController, borrowerController, widget, selectedBorrowerId: selectedBorrowerId),
                   ],
@@ -117,6 +118,23 @@ class LendingTransactionState extends State<LendingTransaction> {
       },
     );
   }
+
+void _validateQuantity(String value) {
+  setState(() {
+    if (value.isEmpty) {
+      quantityError = "Quantity cannot be empty.";
+    } else {
+      int enteredQuantity = int.tryParse(value) ?? 0;
+      if (enteredQuantity <= 0) {
+        quantityError = "Quantity must be at least 1.";
+      } else if (enteredQuantity > widget.availableQuantity) {
+        quantityError = "Maximum available quantity is ${widget.availableQuantity}.";
+      } else {
+        quantityError = null; // Clear error if input is valid
+      }
+    }
+  });
+}
 
 Widget _buildBorrowerField() {
     return Column(
