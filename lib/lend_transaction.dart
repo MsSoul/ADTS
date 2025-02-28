@@ -13,6 +13,7 @@ class LendingTransaction extends StatefulWidget {
   final String description;
   final int currentDptId;
   final List<Map<String, dynamic>> initialTransactions;
+  final int availableQuantity;
 
 
   const LendingTransaction({
@@ -23,6 +24,7 @@ class LendingTransaction extends StatefulWidget {
     required this.description,
     required this.currentDptId,
     required this.initialTransactions,
+    required this.availableQuantity,
   });
 
   @override
@@ -40,6 +42,7 @@ class LendingTransactionState extends State<LendingTransaction> {
   bool _borrowerSelected = false;
   List<Map<String, dynamic>> searchResults = [];
   int? selectedBorrowerId;
+
 
  Future<void> fetchBorrowerDetails(String input) async {
   logger.i("Fetching borrower details for Department ID: ${widget.currentDptId}");
@@ -74,6 +77,7 @@ class LendingTransactionState extends State<LendingTransaction> {
     setState(() => isLoading = false);
   }
 }
+
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +272,6 @@ Widget _buildSearchResultsList() {
     ),
   );
 }
-
 // Function to capitalize each word in the name properly
 String _capitalizeName(String name) {
   return name.split(' ').map((word) {

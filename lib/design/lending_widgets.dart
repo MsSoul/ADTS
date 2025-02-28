@@ -75,11 +75,12 @@ Widget buildActionButtons(
   return Row(
     mainAxisAlignment: MainAxisAlignment.end,
     children: [
+      // Cancel Button
       SizedBox(
         width: 120,
         child: ElevatedButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(); // Close the main dialog
           },
           style: TextButton.styleFrom(
             foregroundColor: Colors.grey[700],
@@ -89,6 +90,7 @@ Widget buildActionButtons(
         ),
       ),
       const SizedBox(width: 10),
+      // Request Button
       SizedBox(
         width: 120,
         child: ElevatedButton(
@@ -113,23 +115,7 @@ Widget buildActionButtons(
               return;
             }
 
-            // Create transaction data
-            Map<String, dynamic> transactionData = {
-              'current_dpt_Id': widget.currentDptId,
-              'empId': widget.empId,
-              'itemId': widget.itemId,
-              'itemName': widget.itemName,
-              'description': widget.description,
-              'quantity': quantity,
-              'borrower': borrowerController.text,
-              'borrowerId': selectedBorrowerId,
-              'currentDptId': widget.currentDptId,  
-            };
-
-            // 🔍 Log the transaction data
-            logger.i("Transaction Data: $transactionData");
-
-            // Show confirmation dialog
+            // Show Confirmation Dialog
             bool confirm = await showDialog(
               context: context,
               builder: (BuildContext dialogContext) {
@@ -139,87 +125,53 @@ Widget buildActionButtons(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(fontSize: 14, color: Colors.black),
-                          children: [
-                            const TextSpan(text: "Item: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(text: transactionData['itemName']),
-                          ],
-                        ),
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(fontSize: 14, color: Colors.black),
-                          children: [
-                            const TextSpan(text: "Description: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(text: transactionData['description']),
-                          ],
-                        ),
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(fontSize: 14, color: Colors.black),
-                          children: [
-                            const TextSpan(text: "Quantity: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(text: transactionData['quantity'].toString()),
-                          ],
-                        ),
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(fontSize: 14, color: Colors.black),
-                          children: [
-                            const TextSpan(text: "Borrower Name: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(text: transactionData['borrower'].toString()),
-                          ],
-                        ),
-                      ),
+                      _buildDialogText("Item", widget.itemName),
+                      _buildDialogText("Description", widget.description),
+                      _buildDialogText("Quantity", quantity.toString()),
+                      _buildDialogText("Borrower Name", borrowerController.text),
                     ],
                   ),
                   actions: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                            width: 120,
-                            child: ElevatedButton(
-                              onPressed: () => Navigator.of(dialogContext).pop(false),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[300],
-                                foregroundColor: Colors.black, 
-                              ),
-                              child: const Text('Cancel'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Cancel Button
+                        SizedBox(
+                          width: 120,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.of(dialogContext).pop(false),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[300],
+                              foregroundColor: Colors.black, 
                             ),
+                            child: const Text('Cancel'),
                           ),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 120,
-                            child: ElevatedButton(
-                              onPressed: () => Navigator.of(dialogContext).pop(true),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryColor,
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Confirm'),
+                        ),
+                        const SizedBox(width: 10),
+                        // Confirm Button
+                        SizedBox(
+                          width: 120,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.of(dialogContext).pop(true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryColor,
+                              foregroundColor: Colors.white,
                             ),
+                            child: const Text('Confirm'),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 );
               },
             );
 
-            if (!context.mounted) return; // Check if the widget is still mounted
+            if (!context.mounted || confirm != true) return; // Check if confirmed
 
-            if (confirm == true) {
-              try {
-                // 🔥 Call API function to submit the transaction
-                final response = await lendTransactionApi.submitLendingTransaction(
+            try {
+              // 🔥 Submit Transaction
+              final response = await lendTransactionApi.submitLendingTransaction(
                 empId: widget.empId,
                 itemId: widget.itemId,
                 itemName: widget.itemName,
@@ -227,26 +179,38 @@ Widget buildActionButtons(
                 quantity: quantity,
                 borrowerId: selectedBorrowerId,
                 currentDptId: widget.currentDptId, 
+              );
+
+              logger.i("Submitting Lending Transaction with Borrower ID: $selectedBorrowerId");
+
+              if (!context.mounted) return;
+
+              // ✅ Show Success Dialog (After Closing Confirmation)
+              await showDialog(
+                context: context,
+                barrierDismissible: false, // Prevent accidental closing
+                builder: (BuildContext successContext) {
+                  return AlertDialog(
+                    title: const Text('🎉 Success!'),
+                    content: Text(response['message'] ?? 'Request submitted successfully!'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(successContext).pop(); // Close Success Dialog
+                          Navigator.of(context).pop(); // Close Main Dialog
+                        },
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            } catch (e) {
+              if (context.mounted) {
+                logger.e("Error submitting transaction: $e");
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error submitting request: $e')),
                 );
-logger.i("Submitting Lending Transaction with Borrower ID: $selectedBorrowerId");
-
-                if (context.mounted) {
-                  // 🎉 Success message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(response['message'] ?? 'Request submitted successfully!')),
-                  );
-
-                  // Close the dialog
-                  Navigator.of(context).pop();
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  // ❌ Error handling
-                  logger.e("Error submitting transaction: $e");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error submitting request: $e')),
-                  );
-                }
               }
             }
           },
@@ -261,6 +225,19 @@ logger.i("Submitting Lending Transaction with Borrower ID: $selectedBorrowerId")
   );
 }
 
-
-
+// 📌 Helper function for dialog text
+Widget _buildDialogText(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 5),
+    child: RichText(
+      text: TextSpan(
+        style: const TextStyle(fontSize: 14, color: Colors.black),
+        children: [
+          TextSpan(text: "$label: ", style: const TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: value),
+        ],
+      ),
+    ),
+  );
+}
 

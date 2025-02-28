@@ -232,6 +232,7 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                                           description: item['description'],
                                           currentDptId: widget.currentDptId, 
                                           initialTransactions: transactions,
+                                          availableQuantity: item['quantity'], 
                                         ),
                                       );
                                     },
@@ -306,19 +307,6 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                         ),
                       ),
                   const SizedBox(height: 15),
-
-
-            // Borrowing Transactions Table
-   /*         if (transactions.isNotEmpty)
-           LendingTransactionTable(
-              initialTransactions: transactions,  
-              currentDptId: currentDptId,       
-              empId: empId,
-              itemName: itemName,
-              description: description,
-              itemId: itemId,
-             //quantity: quantity,
-            ),*/
         ],
       ),)
     );
