@@ -1,140 +1,230 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import '../services/borrow_transaction_api.dart';
+import 'borrow_transaction.dart';
+import '../design/colors.dart';
 
-class BorrowItemsScreen extends StatelessWidget {
-  const BorrowItemsScreen({super.key});
+class BorrowItemsScreen extends StatefulWidget {
+  final int currentDptId;
+  final int empId;
+
+  const BorrowItemsScreen({super.key, required this.currentDptId, required this.empId});
+
+  @override
+  State<BorrowItemsScreen> createState() => _BorrowItemsScreenState();
+}
+
+class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
+  late BorrowTransactionApi _allItemsApi;
+  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _pageController = TextEditingController();
+  final Logger log = Logger();
+
+  List<Map<String, dynamic>> allItems = [];
+  List<Map<String, dynamic>> filteredItems = [];
+  bool isLoading = true;
+  bool hasError = false;
+
+  int currentPage = 0;
+  int itemsPerPage = 10; // Updated to 10 items per page
+  late int empId;
+  late int currentDptId;
+
+  @override
+  void initState() {
+    super.initState();
+    currentDptId = widget.currentDptId;
+    empId = widget.empId;
+    log.i("💡 Current Department ID: $currentDptId");
+    _allItemsApi = BorrowTransactionApi();
+
+    _loadAllItems();
+  }
+
+  Future<void> _loadAllItems() async {
+    try {
+      final items = await _allItemsApi.fetchAllItems(currentDptId, empId);
+
+      setState(() {
+        allItems = items;
+        filteredItems = List.from(allItems);
+        isLoading = false;
+      });
+
+      log.i("✅ Items loaded: ${allItems.length}");
+    } catch (e) {
+      log.e("❌ Error fetching borrowable items: $e");
+      setState(() {
+        isLoading = false;
+        hasError = true;
+      });
+    }
+  }
+
+  void _searchItems(String query) {
+    setState(() {
+      filteredItems = allItems
+          .where((item) => item['name'].toLowerCase().contains(query.toLowerCase()))
+          .toList();
+      currentPage = 0;
+    });
+  }
+
+  void _changePage(int newPage) {
+    setState(() {
+      currentPage = newPage;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    int totalPages = (filteredItems.length / itemsPerPage).ceil();
+    _pageController.text = (currentPage + 1).toString();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Borrow Items'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Welcome to the Borrow Items Section!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Here, you can browse and request items to borrow. Please follow the instructions below:',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            // Example instructions (replace with your actual instructions)
-            const Text(
-              '1. Browse the available items.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              '2. Select the item you wish to borrow.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              '3. Fill out the borrow request form.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              '4. Wait for approval from the item owner.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 24),
-            // Add your item list and borrow request functionality here
-            Expanded(
-              child: ListView(
-                children: [
-                  // Example item cards (replace with your actual item data)
-                  _buildItemCard(
-                    context: context,
-                    itemName: 'Drill',
-                    itemDescription: 'A powerful drill for your home projects.',
-                    onTap: () {
-                      // Navigate to item details or borrow request page
-                      _showBorrowRequestDialog(context, 'Drill');
-                    },
-                  ),
-                  _buildItemCard(
-                    context: context,
-                    itemName: 'Ladder',
-                    itemDescription: 'A sturdy ladder for reaching high places.',
-                    onTap: () {
-                      _showBorrowRequestDialog(context, 'Ladder');
-                    },
-                  ),
-                  // Add more item cards...
-                ],
-              ),
-            ),
-          ],
+        title: const Text(
+          'Select Items to Borrow',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: AppColors.primaryColor,
+          ),
         ),
       ),
-    );
-  }
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : hasError
+              ? const Center(
+                  child: Text(
+                    '⚠ Failed to load items. Please try again later.',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Search Box with Rounded Border
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            labelText: 'Search Items to Borrow',
+                            labelStyle: const TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.bold),
+                            prefixIcon: const Icon(Icons.search, color: AppColors.primaryColor),
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: AppColors.primaryColor, width: 3),
+                            ),
+                          ),
+                          onChanged: _searchItems,
+                        ),
+                      ),
 
-  Widget _buildItemCard({
-    required BuildContext context,
-    required String itemName,
-    required String itemDescription,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        title: Text(itemName),
-        subtitle: Text(itemDescription),
-        onTap: onTap,
-      ),
-    );
-  }
+                      // Pagination Controls
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: AppColors.primaryColor),
+                            onPressed: currentPage > 0 ? () => _changePage(currentPage - 1) : null,
+                          ),
+                          Text("Page ${currentPage + 1} of $totalPages"),
+                          IconButton(
+                            icon: const Icon(Icons.arrow_forward, color: AppColors.primaryColor),
+                            onPressed: currentPage < totalPages - 1 ? () => _changePage(currentPage + 1) : null,
+                          ),
+                        ],
+                      ),
 
-  void _showBorrowRequestDialog(BuildContext context, String itemName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Borrow Request: $itemName'),
-          content: const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Enter details for your borrow request:'),
-              SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(labelText: 'Borrow Date'),
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Return Date'),
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Reason for Borrowing'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Borrow request submitted!')),
-                );
-              },
-              child: const Text('Submit Request'),
-            ),
-          ],
-        );
-      },
+                      // Items Table
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.primaryColor, width: 2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            headingRowColor: WidgetStateColor.resolveWith((states) => AppColors.primaryColor),
+                            columns: const [
+                              DataColumn(label: Center(child: Text('Action', style: TextStyle(color: Colors.white)))),
+                              DataColumn(label: Center(child: Text('Owner', style: TextStyle(color: Colors.white)))),
+                              DataColumn(label: Text('Item Name', style: TextStyle(color: Colors.white))),
+                              DataColumn(label: Text('Description', style: TextStyle(color: Colors.white))),
+                              DataColumn(label: Text('Quantity', style: TextStyle(color: Colors.white))),
+                              DataColumn(label: Center(child: Text('ICS', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
+                              DataColumn(label: Center(child: Text('ARE No.', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
+                              DataColumn(label: Center(child: Text('Prop No.', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
+                              DataColumn(label: Center(child: Text('Serial No.', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
+                            ],
+                            rows: filteredItems.skip(currentPage * itemsPerPage).take(itemsPerPage).map((item) {
+                              return DataRow(cells: [
+                                DataCell(
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8), // Rounded corners
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Adjust padding for better appearance
+                                  ),
+onPressed: () async {
+  String borrowerName = await _allItemsApi.fetchUserName(empId); // Fetch borrower name based on empId
+
+  showDialog(
+    context: context,
+    builder: (context) => BorrowTransaction(
+      empId: empId, 
+      currentDptId: currentDptId, 
+      itemId: item['id'], 
+      itemName: item['name'], 
+      description: item['description'], 
+      availableQuantity: item['quantity'], 
+      ownerId: item['accountable_emp'], 
+      owner: item['accountable_name'] ?? 'Unknown', 
+      borrower: borrowerName, // Set borrower name dynamically
+    ),
+  );
+},
+
+                                    child: const Text('Borrow'),
+                                  ),
+                                ),
+                                DataCell(Text(
+                                  item['accountable_name'] != null
+                                      ? item['accountable_name']
+                                          .split(' ')
+                                          .map((word) => word.isNotEmpty ? word[0].toUpperCase() + word.substring(1).toLowerCase() : '')
+                                          .join(' ')
+                                      : 'Unknown',
+                                )),
+                                DataCell(Text(item['name'])),
+                                DataCell(Text(item['description'])),
+                                DataCell(Text(item['quantity'].toString())),
+                                    DataCell(Text(item['ics']?.toString() ?? 'N/A')),
+                                    DataCell(Text(item['are_no']?.toString() ?? 'N/A')),
+                                    DataCell(Text(item['prop_no']?.toString() ?? 'N/A')),
+                                    DataCell(Text(item['serial_no']?.toString() ?? 'N/A')),
+
+                              ]);
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
     );
   }
 }

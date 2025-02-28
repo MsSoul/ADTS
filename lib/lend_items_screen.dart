@@ -127,6 +127,17 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
     _pageController.text = (currentPage + 1).toString();
 
     return Scaffold(
+appBar: AppBar(
+  title: const Text(
+    'Select Items to Lend',
+    style: TextStyle(
+      fontWeight: FontWeight.bold, 
+      fontSize: 20,
+      color: AppColors.primaryColor,
+    ),
+  ),
+),
+
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : hasError
@@ -145,7 +156,7 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                               child: TextField(
                                 controller: _searchController,
                                 decoration: InputDecoration(
-                                  labelText: 'Search Items',
+                                  labelText: 'Search Items to lend',
                                   labelStyle: const TextStyle(
                                     color: AppColors.primaryColor,
                                     fontWeight: FontWeight.bold,
@@ -179,7 +190,7 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                               ),
                             ),
                           ),
-
+const SizedBox(height: 5),
                       // Table Section
                       Container(
                         padding: const EdgeInsets.all(5), // Table Padding

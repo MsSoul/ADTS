@@ -27,7 +27,7 @@ class ItemsPopup {
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  onSelect(const BorrowItemsScreen());
+                  onSelect(BorrowItemsScreen(empId: empId, currentDptId: currentDptId));
                 },
                 child: const Text("Borrow Item", style: TextStyle(color: Colors.white)),
               ),

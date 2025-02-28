@@ -17,6 +17,15 @@ Widget buildDialogTitle() {
   );
 }
 
+Widget buildBorrowDialogTitle() {
+  return const Center(
+    child: Text(
+      'Request Borrow Item',
+      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    ),
+  );
+}
+
 Widget buildInfoBox(String label, String text) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
