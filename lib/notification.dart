@@ -119,22 +119,30 @@ class _NotifScreenState extends State<NotifScreen> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const Spacer(),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.filter_list, size: 28),
-              onSelected: (String value) {
-                setState(() {
-                  selectedFilter = value;
-                  _sortNotifications();
-                });
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                    value: "Newest", child: Text("Sort by Newest")),
-                const PopupMenuItem(
-                    value: "Oldest", child: Text("Sort by Oldest")),
-                const PopupMenuItem(
-                    value: "Unread First", child: Text("Sort by Unread First")),
-              ],
-            ),
+                icon: const Icon(Icons.filter_list, size: 28),
+                color: AppColors.primaryColor, // Set background color
+                onSelected: (String value) {
+                  setState(() {
+                    selectedFilter = value;
+                    _sortNotifications();
+                  });
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: "Newest",
+                    child: Text("Sort by Newest", style: TextStyle(color: Colors.white)),
+                  ),
+                  const PopupMenuItem(
+                    value: "Oldest",
+                    child: Text("Sort by Oldest", style: TextStyle(color: Colors.white)),
+                  ),
+                  const PopupMenuItem(
+                    value: "Unread First",
+                    child: Text("Sort by Unread First", style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+
           ],
         ),
       ),
@@ -225,15 +233,22 @@ class _NotifScreenState extends State<NotifScreen> {
                                       notif['MESSAGE'] ??
                                       "No message"),
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      _markAsRead(index);
-                                    },
-                                    child: const Text("Close"),
+                               actions: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryColor, // Set primary color
                                   ),
-                                ],
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    _markAsRead(index);
+                                  },
+                                  child: const Text(
+                                    "Close",
+                                    style: TextStyle(color: Colors.white), // Make text white for contrast
+                                  ),
+                                ),
+                              ],
+
                               ),
                             );
                           },
