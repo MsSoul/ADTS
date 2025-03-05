@@ -53,21 +53,29 @@ class NotifApi {
   }
 
   // Mark notification as read
-  Future<void> markAsRead(int notifId) async {
-    try {
-      final response = await http.put(Uri.parse("$baseUrl/api/notifications/read/$notifId"));
+ Future<void> markAsRead(int notifId) async {
+  try {
+    final url = "$baseUrl/api/notifications/mark_as_read/$notifId";
 
-      if (response.statusCode == 200) {
-        logger.i("Notification ID $notifId marked as read");
-      } else {
-        logger.e("Failed to mark notification as read, Status Code: ${response.statusCode}");
-        throw Exception("Failed to mark notification as read");
-      }
-    } catch (e) {
-      logger.e("Error marking notification as read: $e");
-      throw Exception("Error marking notification as read");
+    logger.i("📤 Sending Request to: $url");
+
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+    );
+
+    if (response.statusCode == 200) {
+      logger.i("✅ Notification ID $notifId marked as read");
+    } else {
+      logger.e("⛔ Failed to mark notification as read, Status Code: ${response.statusCode}");
+      throw Exception("Failed to mark notification as read");
     }
+  } catch (e) {
+    logger.e("❌ Error marking notification as read: $e");
+    throw Exception("Error marking notification as read");
   }
+}
+
 
   // Create a new notification (for testing)
   Future<void> createNotification(String message, int forEmp, int transactionId) async {
