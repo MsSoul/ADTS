@@ -1,7 +1,9 @@
 //filename:lib/services/borrow_transaction_api.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:ibs/design/borrowing_widgets.dart';
 import 'package:logger/logger.dart';
+import 'package:flutter/material.dart';
 import 'config.dart';
 
 class BorrowTransactionApi {
@@ -43,10 +45,16 @@ class BorrowTransactionApi {
       return [];
     }
   }
-
-  /// Process the borrowing transaction
-  Future<bool> processBorrowTransaction(int borrowerId, int itemId, int quantity, int currentDptId) async {
-    final url = Uri.parse('$baseUrl/api/borrow');
+ /// Process the borrowing transaction
+  Future<bool> processBorrowTransaction({
+    required int borrowerId,
+    required int ownerId,  
+    required int itemId,
+    required int quantity,
+    required int currentDptId,
+    required BuildContext context,
+  }) async {
+    final url = Uri.parse('$baseUrl/api/borrowTransaction/borrow');
     logger.i("🔄 Processing borrow transaction: $url");
 
     try {
@@ -54,15 +62,16 @@ class BorrowTransactionApi {
         url,
         headers: {"Content-Type": "application/json"},
         body: json.encode({
-          'borrowerId': borrowerId,
-          'itemId': itemId,
+          'borrower_emp_id': borrowerId,
+          'owner_emp_id': ownerId,  // Add ownerId
+          'item_id': itemId,
           'quantity': quantity,
-          'currentDptId': currentDptId,
+          'DPT_ID': currentDptId,
         }),
       );
 
-      if (response.statusCode == 200) {
-        logger.i("✅ Borrow transaction successful!");
+      if (response.statusCode == 201) {  // Check for 201 (Created)
+        showSuccessDialog(context: context);
         return true;
       } else {
         logger.w("⚠ Failed to borrow item. Status: ${response.statusCode}, Response: ${response.body}");
@@ -73,38 +82,40 @@ class BorrowTransactionApi {
       return false;
     }
   }
+
+
  /// Fetch employee name based on employee ID
   Future<String> fetchUserName(int empId) async {
-    final url = Uri.parse('$baseUrl/api/userName/$empId'); 
-    logger.i("🔍 Fetching user name: $url");
+  final url = Uri.parse('$baseUrl/api/borrowTransaction/$empId');  
+  logger.i("🔍 Fetching user name: $url");
 
-    try {
-      final response = await http.get(url);
+  try {
+    final response = await http.get(url);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
 
-        if (data.containsKey("userName")) {
-          String userName = data["userName"];
+      if (data.containsKey("userName")) {
+        String userName = data["userName"];
 
-          // Capitalize the first letter of each word
-          String formattedName = userName.split(' ').map((word) {
-            return word.isNotEmpty ? word[0].toUpperCase() + word.substring(1).toLowerCase() : '';
-          }).join(' ');
+        // Capitalize the first letter of each word
+        String formattedName = userName.split(' ').map((word) {
+          return word.isNotEmpty ? word[0].toUpperCase() + word.substring(1).toLowerCase() : '';
+        }).join(' ');
 
-          logger.i("👤 User Name: $formattedName");
-          return formattedName;
-        } else {
-          logger.w("⚠ User data does not contain 'userName' key: $data");
-          return "Unknown";
-        }
+        logger.i("👤 User Name: $formattedName");
+        return formattedName;
       } else {
-        logger.w("⚠ Failed to fetch user name. Status: ${response.statusCode}");
+        logger.w("⚠ User data does not contain 'userName' key: $data");
         return "Unknown";
       }
-    } catch (e, stackTrace) {
-      logger.e("❌ Error fetching user name", error: e, stackTrace: stackTrace);
+    } else {
+      logger.w("⚠ Failed to fetch user name. Status: ${response.statusCode}");
       return "Unknown";
     }
+  } catch (e, stackTrace) {
+    logger.e("❌ Error fetching user name", error: e, stackTrace: stackTrace);
+    return "Unknown";
   }
+}
 }

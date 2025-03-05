@@ -39,7 +39,7 @@ class HomeScreenState extends State<HomeScreen> {
     debugPrint("Selected Menu: $title");
     switch (title) {
       case 'Notification':
-        _currentScreen = const NotifScreen();
+        _currentScreen = NotifScreen(empId: empId);
         break;
       case 'Dashboard':
         _currentScreen = DashboardScreen(empId: empId, currentDptId: currentDptId);

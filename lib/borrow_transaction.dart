@@ -3,6 +3,7 @@ import 'package:ibs/design/colors.dart';
 import 'services/borrow_transaction_api.dart';
 import 'package:logger/logger.dart';
 import 'design/lending_widgets.dart'; 
+import 'design/borrowing_widgets.dart';
 
 class BorrowTransaction extends StatefulWidget {
   final int empId; // Logged-in user (Borrower)
@@ -53,7 +54,7 @@ class BorrowTransactionState extends State<BorrowTransaction> {
       logger.i("Fetching borrower name for empId: ${widget.empId}");
       String? name = await borrowApi.fetchUserName(widget.empId);
       
-      if (name == null || name.isEmpty) {
+      if (name.isEmpty) {
         logger.e("Error: Borrower name not found for empId ${widget.empId}");
         setState(() {
           borrowerName = "Error: Name not found";
@@ -162,33 +163,50 @@ class BorrowTransactionState extends State<BorrowTransaction> {
       ),
       const SizedBox(width: 10),
       ElevatedButton(
-        onPressed: () async {
-          int qty = int.tryParse(qtyController.text) ?? 0;
-          if (qty > 0) {
-            bool success = await processBorrowTransaction(
-              borrowerId: widget.empId,
-              ownerId: widget.ownerId,
-              itemId: widget.itemId,
-              quantity: qty,
-              currentDptId: widget.currentDptId,
-            );
+  onPressed: () async {
+    int qty = int.tryParse(qtyController.text) ?? 0;
+    if (qty > 0) {
+      bool confirm = await showBorrowConfirmationDialog(
+        context: context,
+        itemName: widget.itemName,
+        description: widget.description,
+        quantity: qty,
+        ownerName: widget.owner,
+        borrowerName: widget.borrower,
+      );
 
-            if (success) {
-              Navigator.pop(context);
-              print("Item borrowed successfully!");
-            } else {
-              print("Failed to borrow item.");
-            }
-          } else {
-            print("Invalid quantity.");
+      if (confirm) {
+        bool success = await processBorrowTransaction(
+          borrowerId: widget.empId,
+          ownerId: widget.ownerId,
+          itemId: widget.itemId,
+          quantity: qty,
+          currentDptId: widget.currentDptId,
+          context: context,
+        );
+
+        if (success) {
+          Navigator.pop(context); // Close borrow transaction dialog
+          
+          // Show success dialog
+          if (context.mounted) {
+            await showSuccessDialog(context: context);
           }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryColor, // Primary color for Confirm Borrow
-          foregroundColor: Colors.white, // White text color
-        ),
-        child: const Text("Confirm Borrow"),
-      ),
+        } else {
+          print("Failed to borrow item.");
+        }
+      }
+    } else {
+      print("Invalid quantity.");
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: AppColors.primaryColor,
+    foregroundColor: Colors.white, 
+  ),
+  child: const Text("Confirm Borrow"),
+),
+
     ],
   );
 }
@@ -200,14 +218,17 @@ Future<bool> processBorrowTransaction({
   required int itemId,
   required int quantity,
   required int currentDptId,
+  required BuildContext context,
 }) async {
   BorrowTransactionApi borrowApi = BorrowTransactionApi();
   
   bool success = await borrowApi.processBorrowTransaction(
-    borrowerId, 
-    itemId, 
-    quantity, 
-    currentDptId,
+    context: context,
+    borrowerId: borrowerId,
+    ownerId: ownerId, 
+    itemId: itemId, 
+    quantity: quantity, 
+    currentDptId: currentDptId,
   );
 
   return success;
