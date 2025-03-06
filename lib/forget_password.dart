@@ -169,7 +169,7 @@ class ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                           backgroundColor: AppColors.primaryColor,
                           foregroundColor: Colors.white,
                           minimumSize:
-                              const Size(double.infinity, 45), // Smaller height
+                              const Size(double.infinity, 45), 
                         ),
                         child: const Text("Verify Identity"),
                       ),
