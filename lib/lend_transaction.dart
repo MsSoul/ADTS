@@ -141,8 +141,6 @@ class LendingTransactionState extends State<LendingTransaction> {
       }
     });
   }
-
-
 Widget _buildBorrowerField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -297,7 +295,6 @@ Widget _buildSearchResultsList() {
     ),
   );
 }
-// Function to capitalize each word in the name properly
 String _capitalizeName(String name) {
   return name.split(' ').map((word) {
     if (word.isEmpty) return '';

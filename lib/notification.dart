@@ -20,6 +20,7 @@ class _NotifScreenState extends State<NotifScreen> {
   List<Map<String, dynamic>> notifications = [];
   bool isLoading = true;
   String selectedFilter = "Newest"; // Default sorting option
+  bool showAllNotifications = false; // Flag to control visibility
 
   @override
   void initState() {
@@ -88,7 +89,11 @@ class _NotifScreenState extends State<NotifScreen> {
       } else if (selectedFilter == "Oldest") {
         notifications.sort((a, b) => (a['id'] ?? 0).compareTo(b['id'] ?? 0));
       } else if (selectedFilter == "Unread First") {
-        notifications.sort((a, b) => isUnread(a) ? -1 : isUnread(b) ? 1 : 0);
+        notifications.sort((a, b) => isUnread(a)
+            ? -1
+            : isUnread(b)
+                ? 1
+                : 0);
       }
     });
   }
@@ -113,154 +118,180 @@ class _NotifScreenState extends State<NotifScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 4,
+        shadowColor: Colors.black.withAlpha(50),
         title: Row(
           children: [
-            const Text("Inbox",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const Text(
+              "Inbox",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
             const Spacer(),
             PopupMenuButton<String>(
-                icon: const Icon(Icons.filter_list, size: 28),
-                color: AppColors.primaryColor, // Set background color
-                onSelected: (String value) {
-                  setState(() {
-                    selectedFilter = value;
-                    _sortNotifications();
-                  });
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: "Newest",
-                    child: Text("Sort by Newest", style: TextStyle(color: Colors.white)),
-                  ),
-                  const PopupMenuItem(
-                    value: "Oldest",
-                    child: Text("Sort by Oldest", style: TextStyle(color: Colors.white)),
-                  ),
-                  const PopupMenuItem(
-                    value: "Unread First",
-                    child: Text("Sort by Unread First", style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
-
+              icon: const Icon(Icons.filter_list,
+                  size: 28, color: Colors.black), // Icon color
+              color: AppColors.primaryColor, // Background color of dropdown
+              onSelected: (String value) {
+                setState(() {
+                  selectedFilter = value;
+                  _sortNotifications();
+                });
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: "Newest",
+                  child: Text("Sort by Newest",
+                      style: TextStyle(color: Colors.white)),
+                ),
+                const PopupMenuItem(
+                  value: "Oldest",
+                  child: Text("Sort by Oldest",
+                      style: TextStyle(color: Colors.white)),
+                ),
+                const PopupMenuItem(
+                  value: "Unread First",
+                  child: Text("Sort by Unread First",
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
           ],
         ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : notifications.isEmpty
-              ? const Center(
-                  child: Text(
-                    "No new notifications!",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: notifications.length,
-                  itemBuilder: (context, index) {
-                    final notif = notifications[index];
-                    bool isUnreadNotif = isUnread(notif);
-
-                    return Dismissible(
-                      key: Key(notif['id'].toString()),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        color: Colors.green,
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20),
-                        child: const Icon(Icons.check, color: Colors.white),
+          : RefreshIndicator(
+              onRefresh: _fetchNotifications,
+              child: notifications.isEmpty
+                  ? const Center(
+                      child: Text(
+                        "No new notifications!",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      onDismissed: (direction) => _markAsRead(index),
-                      child: Card(
-                        elevation: 4,
-                        color: isUnreadNotif ? Colors.blue.shade50 : Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        child: ListTile(
-                          leading: Icon(
-                            Icons.notifications,
-                            color: isUnreadNotif
-                                ? AppColors.primaryColor
-                                : Colors.grey,
-                          ),
-                          title: RichText(
-                            text: TextSpan(
-                              text: (notif['message'] ??
-                                      notif['MESSAGE'] ??
-                                      "No message")
-                                  .split('\n')
-                                  .first,
-                              style: TextStyle(
-                                fontWeight: isUnreadNotif
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color: Colors.black,
-                                fontSize: 16,
-                              ),
-                              children: isUnreadNotif
-                                  ? [
-                                      const TextSpan(
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.primaryColor,
-                                          fontSize: 14,
+                    )
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(8),
+                            itemCount: showAllNotifications
+                                ? notifications.length
+                                : notifications.length > 10
+                                    ? 10
+                                    : notifications.length,
+                            itemBuilder: (context, index) {
+                              final notif = notifications[index];
+                              bool isUnreadNotif = isUnread(notif);
+
+                              return Card(
+                                elevation: 4,
+                                color: isUnreadNotif
+                                    ? Colors.blue.shade50
+                                    : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: ListTile(
+                                  leading: Icon(
+                                    Icons.notifications,
+                                    color: isUnreadNotif
+                                        ? AppColors.primaryColor
+                                        : Colors.grey,
+                                  ),
+                                  title: RichText(
+                                    text: TextSpan(
+                                      text: (notif['message'] ??
+                                              notif['MESSAGE'] ??
+                                              "No message")
+                                          .split('\n')
+                                          .take(2)
+                                          .join('\n'),
+                                      style: TextStyle(
+                                        fontWeight: isUnreadNotif
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    "Date: ${_formatDate(notif['createdAt'])}",
+                                    style: const TextStyle(
+                                      color: Color.fromARGB(255, 119, 118, 118),
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                  trailing: Text(
+                                    isUnreadNotif ? "Unread" : "Read",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: isUnreadNotif
+                                          ? AppColors.primaryColor
+                                          : Colors.grey,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text("Notification"),
+                                        content: SingleChildScrollView(
+                                          child: Text(notif['message'] ??
+                                              notif['MESSAGE'] ??
+                                              "No message"),
                                         ),
-                                      )
-                                    ]
-                                  : [],
-                            ),
-                          ),
-                          subtitle: Text(
-                            "Date: ${_formatDate(notif['createdAt'])}",
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 119, 118, 118),
-                              fontSize: 10,
-                            ),
-                          ),
-                          trailing: Text(
-                            isUnreadNotif ? "Unread" : "Read",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isUnreadNotif
-                                  ? AppColors.primaryColor
-                                  : Colors.grey,
-                            ),
-                          ),
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text("Notification"),
-                                content: SingleChildScrollView(
-                                  child: Text(notif['message'] ??
-                                      notif['MESSAGE'] ??
-                                      "No message"),
-                                ),
-                               actions: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primaryColor, // Set primary color
-                                  ),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _markAsRead(index);
+                                        actions: [
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primaryColor,
+                                            ),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              _markAsRead(index);
+                                            },
+                                            child: const Text(
+                                              "Close",
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
                                   },
-                                  child: const Text(
-                                    "Close",
-                                    style: TextStyle(color: Colors.white), // Make text white for contrast
-                                  ),
                                 ),
-                              ],
-
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                        if (notifications.length > 10 && !showAllNotifications)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  showAllNotifications = true;
+                                });
+                              },
+                              child: const Text(
+                                'See More',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+            ),
     );
   }
 }

@@ -55,20 +55,19 @@ Widget buildTextField(String label, String hint, {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Row(
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          if (errorText != null) // Show error message inline
-            Padding(
-              padding: const EdgeInsets.only(left: 8), // Add spacing from label
-              child: Text(
-                errorText,
-                style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ),
-        ],
-      ),
-      const SizedBox(height: 3), // Small spacing
+      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+
+      // Show Error Message Below Label
+      if (errorText != null) 
+        Padding(
+          padding: const EdgeInsets.only(top: 2, bottom: 3), // Space between label & error
+          child: Text(
+            errorText,
+            style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+        ),
+
+      // Text Field
       SizedBox(
         height: 40,
         child: TextField(
@@ -87,10 +86,11 @@ Widget buildTextField(String label, String hint, {
           ),
         ),
       ),
-      const SizedBox(height: 3), // Keep spacing consistent
+      const SizedBox(height: 3), // Consistent spacing
     ],
   );
 }
+
 
 // Add button function
 Widget buildActionButtons(
@@ -131,7 +131,7 @@ Widget buildActionButtons(
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Please enter a valid quantity.'),
-                    backgroundColor: Colors.red, // Set background color to red
+                    backgroundColor: Colors.red, 
                   ),
                 );
               }
