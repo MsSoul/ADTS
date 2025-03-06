@@ -22,6 +22,7 @@ Widget buildBorrowDialogTitle() {
     child: Text(
       'Request Borrow Item',
       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+
     ),
   );
 }

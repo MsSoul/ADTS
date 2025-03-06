@@ -140,7 +140,7 @@ class LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                     // Forgot Password Button
-                    buildForgotPasswordButton(context, () {}),
+                    buildForgotPasswordButton(context),
 
                     // Login Button
                     buildLoginButton('Log In', _handleLogin),

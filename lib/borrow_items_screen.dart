@@ -160,6 +160,7 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                         decoration: BoxDecoration(
                           border: Border.all(color: AppColors.primaryColor, width: 2),
                           borderRadius: BorderRadius.circular(10),
+                          
                         ),
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,

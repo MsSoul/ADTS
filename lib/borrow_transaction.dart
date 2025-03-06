@@ -85,7 +85,8 @@ class BorrowTransactionState extends State<BorrowTransaction> {
         if (enteredQuantity <= 0) {
           quantityError = "Quantity must be at least 1.";
         } else if (enteredQuantity > widget.availableQuantity) {
-          quantityError = "Maximum available quantity is ${widget.availableQuantity}.";
+          quantityError =
+              "Maximum available quantity is ${widget.availableQuantity}.";
         } else {
           quantityError = null; // Clear error if input is valid
         }
@@ -104,22 +105,29 @@ class BorrowTransactionState extends State<BorrowTransaction> {
           ),
           backgroundColor: Colors.transparent,
           child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.9),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildBorrowDialogTitle(),
-                    buildInfoBox('Item Name:', widget.itemName),
-                    buildInfoBox('Description:', widget.description),
-                    buildInfoBox(
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context)
+                    .viewInsets
+                    .bottom, // Adjust for keyboard
+              ),
+              child: ConstrainedBox(
+                constraints:
+                    BoxConstraints(maxWidth: constraints.maxWidth * 0.9),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildBorrowDialogTitle(),
+                      buildInfoBox('Item Name:', widget.itemName),
+                      buildInfoBox('Description:', widget.description),
+                      buildInfoBox(
                         'Owner:',
                         widget.owner
                             .split(' ')
@@ -127,21 +135,22 @@ class BorrowTransactionState extends State<BorrowTransaction> {
                                 ? word[0].toUpperCase() +
                                     word.substring(1).toLowerCase()
                                 : '')
-                            .join(' ')),
-                    isLoading
-                        ? const Center(child: CircularProgressIndicator()) // Show loading
-                        : buildInfoBox(
-                            'Borrower:', borrowerName ?? "Unknown"), // Show borrower name
-
-                    buildTextField(
-                      'Quantity:',
-                      'Enter Quantity',
-                      controller: qtyController,
-                      onChanged: _validateQuantity,
-                      errorText: quantityError,
-                    ),
-                    buildBorrowActionButton(context, qtyController, widget),
-                  ],
+                            .join(' '),
+                      ),
+                      isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : buildInfoBox(
+                              'Borrower:', borrowerName ?? "Unknown"),
+                      buildTextField(
+                        'Quantity:',
+                        'Enter Quantity',
+                        controller: qtyController,
+                        onChanged: _validateQuantity,
+                        errorText: quantityError,
+                      ),
+                      buildBorrowActionButton(context, qtyController, widget),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -151,8 +160,8 @@ class BorrowTransactionState extends State<BorrowTransaction> {
     );
   }
 
-  Widget buildBorrowActionButton(
-      BuildContext context, TextEditingController qtyController, BorrowTransaction widget) {
+  Widget buildBorrowActionButton(BuildContext context,
+      TextEditingController qtyController, BorrowTransaction widget) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -226,12 +235,11 @@ class BorrowTransactionState extends State<BorrowTransaction> {
           ),
           child: const Text("Confirm"),
         ),
-
       ],
     );
   }
 
-  /// Process borrow transaction API call
+  // Process borrow transaction API call
   Future<bool> processBorrowTransaction({
     required int borrowerId,
     required int ownerId,

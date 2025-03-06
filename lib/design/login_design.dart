@@ -1,6 +1,7 @@
 //filename:lib/deisgn/login_deisgn.dart
 import 'package:flutter/material.dart';
 import '../design/colors.dart';
+import '../forget_password.dart';
 
 
 // Logo Widget
@@ -63,12 +64,16 @@ Widget buildTextField(
 }
 
 
-// Forgot Password Button
-Widget buildForgotPasswordButton(BuildContext context, VoidCallback onPressed) {
+Widget buildForgotPasswordButton(BuildContext context) {
   return Align(
     alignment: Alignment.centerRight,
     child: TextButton(
-      onPressed: onPressed,
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ForgetPasswordScreen()),
+        );
+      },
       child: const Text(
         'Forgot Password?',
         style: TextStyle(
