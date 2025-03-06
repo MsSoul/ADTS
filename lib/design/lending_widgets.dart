@@ -220,18 +220,25 @@ Widget buildActionButtons(
                 barrierDismissible: false, // Prevent accidental closing
                 builder: (BuildContext successContext) {
                   return AlertDialog(
-                    title: const Text('🎉 Success!'),
-                    content: Text(response['message'] ?? 'Request submitted successfully!'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(successContext).pop(); // Close Success Dialog
-                          Navigator.of(context).pop(); // Close Main Dialog
-                        },
-                        child: const Text('OK'),
+                  title: const Text('🎉 Success!'),
+                  content: Text(response['message'] ?? 'Request submitted successfully!'),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(successContext).pop(); // Close Success Dialog
+                        Navigator.of(context).pop(); // Close Main Dialog
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ],
-                  );
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
                 },
               );
             } catch (e) {

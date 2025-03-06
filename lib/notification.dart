@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart'; 
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../services/notif_api.dart';
 import '../services/config.dart';
 import 'design/colors.dart';
@@ -184,35 +185,22 @@ class _NotifScreenState extends State<NotifScreen> {
                                 ? AppColors.primaryColor
                                 : Colors.grey,
                           ),
-                          title: RichText(
-                            text: TextSpan(
-                              text: (notif['message'] ??
-                                      notif['MESSAGE'] ??
-                                      "No message")
-                                  .split('\n')
-                                  .first,
-                              style: TextStyle(
-                                fontWeight: isUnreadNotif
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color: Colors.black,
-                                fontSize: 16,
-                              ),
-                              children: isUnreadNotif
-                                  ? [
-                                      const TextSpan(
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.primaryColor,
-                                          fontSize: 14,
-                                        ),
-                                      )
-                                    ]
-                                  : [],
+                          title: MarkdownBody(
+                          data: (notif['message'] ?? notif['MESSAGE'] ?? "No message").split('\n').first,
+                          styleSheet: MarkdownStyleSheet(
+                            p: TextStyle(
+                              fontWeight: isUnreadNotif ? FontWeight.bold : FontWeight.normal,
+                              fontSize: 12,
+                              color: Colors.black,
                             ),
                           ),
+                        ),
                           subtitle: Text(
                             "Date: ${_formatDate(notif['createdAt'])}",
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 119, 118, 118),
+                              fontSize: 10,
+                            ),
                           ),
                           trailing: Text(
                             isUnreadNotif ? "Unread" : "Read",
@@ -224,16 +212,16 @@ class _NotifScreenState extends State<NotifScreen> {
                             ),
                           ),
                           onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text("Notification"),
-                                content: SingleChildScrollView(
-                                  child: Text(notif['message'] ??
-                                      notif['MESSAGE'] ??
-                                      "No message"),
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Notification"),
+                              content: SingleChildScrollView(
+                                child: MarkdownBody(
+                                  data: notif['message'] ?? notif['MESSAGE'] ?? "No message",
                                 ),
-                               actions: [
+                              ),
+                              actions: [
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.primaryColor, // Set primary color
@@ -248,10 +236,9 @@ class _NotifScreenState extends State<NotifScreen> {
                                   ),
                                 ),
                               ],
-
-                              ),
-                            );
-                          },
+                            ),
+                          );
+                        },
                         ),
                       ),
                     );
