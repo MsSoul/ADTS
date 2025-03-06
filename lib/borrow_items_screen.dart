@@ -108,15 +108,22 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                     children: [
                       // Search Box with Rounded Border
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: SizedBox(
+                        height: 40, // Set the desired height
                         child: TextField(
                           controller: _searchController,
                           decoration: InputDecoration(
                             labelText: 'Search Items to Borrow',
-                            labelStyle: const TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.bold),
+                            labelStyle: const TextStyle(
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                             prefixIcon: const Icon(Icons.search, color: AppColors.primaryColor),
                             filled: true,
                             fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
@@ -129,6 +136,8 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                           onChanged: _searchItems,
                         ),
                       ),
+                    ),
+
 
                       // Pagination Controls
                       Row(
@@ -156,6 +165,9 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                           scrollDirection: Axis.horizontal,
                           child: DataTable(
                             headingRowColor: WidgetStateColor.resolveWith((states) => AppColors.primaryColor),
+                                dataRowMinHeight: 40, 
+                                dataRowMaxHeight: 40,
+                                headingRowHeight: 40,
                             columns: const [
                               DataColumn(label: Center(child: Text('Action', style: TextStyle(color: Colors.white)))),
                               DataColumn(label: Center(child: Text('Owner', style: TextStyle(color: Colors.white)))),
@@ -170,33 +182,34 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                             rows: filteredItems.skip(currentPage * itemsPerPage).take(itemsPerPage).map((item) {
                               return DataRow(cells: [
                                 DataCell(
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primaryColor,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8), // Rounded corners
-                                    ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Adjust padding for better appearance
-                                  ),
-onPressed: () async {
-  String borrowerName = await _allItemsApi.fetchUserName(empId); // Fetch borrower name based on empId
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: AppColors.primaryColor,
+                                              foregroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8), // Rounded corners
+                                              ),
+                                              minimumSize: const Size(80, 35), // Set width and height (height is 35)
+                                              padding: const EdgeInsets.symmetric(horizontal: 12), // Adjust padding if needed
+                                            ),
+                                        onPressed: () async {
+                                          String borrowerName = await _allItemsApi.fetchUserName(empId); // Fetch borrower name based on empId
 
-  showDialog(
-    context: context,
-    builder: (context) => BorrowTransaction(
-      empId: empId, 
-      currentDptId: currentDptId, 
-      itemId: item['id'], 
-      itemName: item['name'], 
-      description: item['description'], 
-      availableQuantity: item['quantity'], 
-      ownerId: item['accountable_emp'], 
-      owner: item['accountable_name'] ?? 'Unknown', 
-      borrower: borrowerName, // Set borrower name dynamically
-    ),
-  );
-},
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => BorrowTransaction(
+                                              empId: empId, 
+                                              currentDptId: currentDptId, 
+                                              itemId: item['id'], 
+                                              itemName: item['name'], 
+                                              description: item['description'], 
+                                              availableQuantity: item['quantity'], 
+                                              ownerId: item['accountable_emp'], 
+                                              owner: item['accountable_name'] ?? 'Unknown', 
+                                              borrower: borrowerName, // Set borrower name dynamically
+                                            ),
+                                          );
+                                        },
 
                                     child: const Text('Borrow'),
                                   ),

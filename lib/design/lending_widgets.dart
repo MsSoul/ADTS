@@ -108,6 +108,7 @@ Widget buildActionButtons(
         width: 120,
         child: ElevatedButton(
           onPressed: () {
+            
             Navigator.of(context).pop(); // Close the main dialog
           },
           style: TextButton.styleFrom(
@@ -125,10 +126,13 @@ Widget buildActionButtons(
           onPressed: () async {
             int? quantity = int.tryParse(qtyController.text);
             
-            if (quantity == null || quantity <= 0) {
+            if (quantity == null || quantity <= 0 || quantity > widget.availableQuantity) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a valid quantity.')),
+                  const SnackBar(
+                    content: Text('Please enter a valid quantity.'),
+                    backgroundColor: Colors.red, // Set background color to red
+                  ),
                 );
               }
               return;
@@ -137,11 +141,15 @@ Widget buildActionButtons(
             if (selectedBorrowerId == null) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please select a borrower.')),
+                  const SnackBar(
+                    content: Text('Please select a borrower.'),
+                    backgroundColor: Colors.red, // Set background color to red
+                  ),
                 );
               }
               return;
             }
+
 
             // Show Confirmation Dialog
             bool confirm = await showDialog(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import '../design/nav_bar.dart';
 import '../design/colors.dart';
 import '../services/items_api.dart';
 
@@ -73,9 +72,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: BottomNavBar(
-        onMenuItemSelected: (String title) {},
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

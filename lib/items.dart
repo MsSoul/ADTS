@@ -12,6 +12,7 @@ class ItemsPopup {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text("Please Select Transaction"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -48,18 +49,19 @@ class ItemsPopup {
               ),
               const SizedBox(height: 10),
               ElevatedButton(
-                
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  minimumSize: const Size(double.infinity, 50),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 235, 234, 234), // Set background color if needed
+                foregroundColor: AppColors.primaryColor, // Set text color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Close"),
+                minimumSize: const Size(double.infinity, 50),
               ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Close"),
+            ),
             ],
           ),
         );

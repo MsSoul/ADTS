@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ibs/design/colors.dart';
 import 'services/borrow_transaction_api.dart';
 import 'package:logger/logger.dart';
-import 'design/lending_widgets.dart'; 
+import 'design/lending_widgets.dart';
 import 'design/borrowing_widgets.dart';
 
 class BorrowTransaction extends StatefulWidget {
@@ -25,7 +25,7 @@ class BorrowTransaction extends StatefulWidget {
     required this.description,
     required this.availableQuantity,
     required this.owner,
-    required this.ownerId, 
+    required this.ownerId,
     required this.borrower,
   });
 
@@ -37,7 +37,7 @@ class BorrowTransactionState extends State<BorrowTransaction> {
   final TextEditingController qtyController = TextEditingController();
   final BorrowTransactionApi borrowApi = BorrowTransactionApi();
   final Logger logger = Logger();
-  
+
   String? quantityError;
   String? borrowerName; // Store borrower name
   bool isLoading = true; // Track loading state
@@ -48,12 +48,12 @@ class BorrowTransactionState extends State<BorrowTransaction> {
     _fetchBorrowerName();
   }
 
-    /// Fetch borrower name using empId
+  /// Fetch borrower name using empId
   Future<void> _fetchBorrowerName() async {
     try {
       logger.i("Fetching borrower name for empId: ${widget.empId}");
       String? name = await borrowApi.fetchUserName(widget.empId);
-      
+
       if (name.isEmpty) {
         logger.e("Error: Borrower name not found for empId ${widget.empId}");
         setState(() {
@@ -76,23 +76,22 @@ class BorrowTransactionState extends State<BorrowTransaction> {
     }
   }
 
-
   void _validateQuantity(String value) {
-  setState(() {
-    if (value.isEmpty) {
-      quantityError = "Quantity cannot be empty.";
-    } else {
-      int enteredQuantity = int.tryParse(value) ?? 0;
-      if (enteredQuantity <= 0) {
-        quantityError = "Quantity must be at least 1.";
-      } else if (enteredQuantity > widget.availableQuantity) {
-        quantityError = "Maximum available quantity is ${widget.availableQuantity}.";
+    setState(() {
+      if (value.isEmpty) {
+        quantityError = "Quantity cannot be empty.";
       } else {
-        quantityError = null; // Clear error if input is valid
+        int enteredQuantity = int.tryParse(value) ?? 0;
+        if (enteredQuantity <= 0) {
+          quantityError = "Quantity must be at least 1.";
+        } else if (enteredQuantity > widget.availableQuantity) {
+          quantityError = "Maximum available quantity is ${widget.availableQuantity}.";
+        } else {
+          quantityError = null; // Clear error if input is valid
+        }
       }
-    }
-  });
-}
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,22 +119,25 @@ class BorrowTransactionState extends State<BorrowTransaction> {
                     buildBorrowDialogTitle(),
                     buildInfoBox('Item Name:', widget.itemName),
                     buildInfoBox('Description:', widget.description),
-                    buildInfoBox('Owner:', 
-                      widget.owner.split(' ')
-                        .map((word) => word.isNotEmpty 
-                          ? word[0].toUpperCase() + word.substring(1).toLowerCase() 
-                          : ''
-                        ).join(' ')
-                    ),
-                    isLoading 
-                      ? const Center(child: CircularProgressIndicator()) // Show loading
-                      : buildInfoBox('Borrower:', borrowerName ?? "Unknown"), // Show borrower name
-                    
+                    buildInfoBox(
+                        'Owner:',
+                        widget.owner
+                            .split(' ')
+                            .map((word) => word.isNotEmpty
+                                ? word[0].toUpperCase() +
+                                    word.substring(1).toLowerCase()
+                                : '')
+                            .join(' ')),
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator()) // Show loading
+                        : buildInfoBox(
+                            'Borrower:', borrowerName ?? "Unknown"), // Show borrower name
+
                     buildTextField(
-                      'Quantity:', 
+                      'Quantity:',
                       'Enter Quantity',
-                      controller: qtyController, 
-                      onChanged: _validateQuantity, 
+                      controller: qtyController,
+                      onChanged: _validateQuantity,
                       errorText: quantityError,
                     ),
                     buildBorrowActionButton(context, qtyController, widget),
@@ -148,88 +150,107 @@ class BorrowTransactionState extends State<BorrowTransaction> {
       },
     );
   }
-}Widget buildBorrowActionButton(
-    BuildContext context, TextEditingController qtyController, BorrowTransaction widget) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-      ElevatedButton(
-        onPressed: () => Navigator.pop(context),
+
+  Widget buildBorrowActionButton(
+      BuildContext context, TextEditingController qtyController, BorrowTransaction widget) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
           style: TextButton.styleFrom(
             foregroundColor: Colors.grey[700],
             backgroundColor: Colors.grey[200], // Gray color for Cancel
+          ),
+          child: const Text("Cancel"),
         ),
-        child: const Text("Cancel"),
-      ),
-      const SizedBox(width: 10),
-      ElevatedButton(
-  onPressed: () async {
-    int qty = int.tryParse(qtyController.text) ?? 0;
-    if (qty > 0) {
-      bool confirm = await showBorrowConfirmationDialog(
-        context: context,
-        itemName: widget.itemName,
-        description: widget.description,
-        quantity: qty,
-        ownerName: widget.owner,
-        borrowerName: widget.borrower,
-      );
+        const SizedBox(width: 10),
+        ElevatedButton(
+          onPressed: () async {
+            int qty = int.tryParse(qtyController.text) ?? 0;
 
-      if (confirm) {
-        bool success = await processBorrowTransaction(
-          borrowerId: widget.empId,
-          ownerId: widget.ownerId,
-          itemId: widget.itemId,
-          quantity: qty,
-          currentDptId: widget.currentDptId,
-          context: context,
-        );
+            // Check if quantity is valid
+            if (qty <= 0 || qty > widget.availableQuantity) {
+              setState(() {
+                quantityError = (qty > widget.availableQuantity)
+                    ? "Maximum available quantity is ${widget.availableQuantity}."
+                    : "Please enter a valid quantity.";
+              });
 
-        if (success) {
-          Navigator.pop(context); // Close borrow transaction dialog
-          
-          // Show success dialog
-          if (context.mounted) {
-            await showSuccessDialog(context: context);
-          }
-        } else {
-          print("Failed to borrow item.");
-        }
-      }
-    } else {
-      print("Invalid quantity.");
-    }
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: AppColors.primaryColor,
-    foregroundColor: Colors.white, 
-  ),
-  child: const Text("Confirm Borrow"),
-),
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(quantityError!),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+              return; // Stop further execution
+            }
 
-    ],
-  );
-}
+            // Proceed with confirmation
+            bool confirm = await showBorrowConfirmationDialog(
+              context: context,
+              itemName: widget.itemName,
+              description: widget.description,
+              quantity: qty,
+              ownerName: widget.owner,
+              borrowerName: widget.borrower,
+            );
 
-/// Process borrow transaction API call
-Future<bool> processBorrowTransaction({
-  required int borrowerId,
-  required int ownerId,
-  required int itemId,
-  required int quantity,
-  required int currentDptId,
-  required BuildContext context,
-}) async {
-  BorrowTransactionApi borrowApi = BorrowTransactionApi();
-  
-  bool success = await borrowApi.processBorrowTransaction(
-    context: context,
-    borrowerId: borrowerId,
-    ownerId: ownerId, 
-    itemId: itemId, 
-    quantity: quantity, 
-    currentDptId: currentDptId,
-  );
+            if (confirm) {
+              bool success = await processBorrowTransaction(
+                borrowerId: widget.empId,
+                ownerId: widget.ownerId,
+                itemId: widget.itemId,
+                quantity: qty,
+                currentDptId: widget.currentDptId,
+                context: context,
+              );
 
-  return success;
+              if (success) {
+                Navigator.pop(context); // Close borrow transaction dialog
+
+                // Show success dialog
+                if (context.mounted) {
+                  await showSuccessDialog(context: context);
+                }
+              } else {
+                logger.e("Failed to borrow item.");
+              }
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primaryColor,
+            foregroundColor: Colors.white,
+          ),
+          child: const Text("Confirm"),
+        ),
+
+      ],
+    );
+  }
+
+  /// Process borrow transaction API call
+  Future<bool> processBorrowTransaction({
+    required int borrowerId,
+    required int ownerId,
+    required int itemId,
+    required int quantity,
+    required int currentDptId,
+    required BuildContext context,
+  }) async {
+    BorrowTransactionApi borrowApi = BorrowTransactionApi();
+
+    bool success = await borrowApi.processBorrowTransaction(
+      context: context,
+      borrowerId: borrowerId,
+      ownerId: ownerId,
+      itemId: itemId,
+      quantity: quantity,
+      currentDptId: currentDptId,
+    );
+
+    return success;
+  }
 }

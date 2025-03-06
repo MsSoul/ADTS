@@ -40,6 +40,8 @@ class LendingTransactionState extends State<LendingTransaction> {
   String searchType = "ID Number";
   bool isLoading = false;
   bool _borrowerSelected = false;
+
+  bool isConfirmEnabled = false;
   List<Map<String, dynamic>> searchResults = [];
   int? selectedBorrowerId;
   String? quantityError;
@@ -119,22 +121,27 @@ class LendingTransactionState extends State<LendingTransaction> {
     );
   }
 
-void _validateQuantity(String value) {
-  setState(() {
-    if (value.isEmpty) {
-      quantityError = "Quantity cannot be empty.";
-    } else {
-      int enteredQuantity = int.tryParse(value) ?? 0;
-      if (enteredQuantity <= 0) {
-        quantityError = "Quantity must be at least 1.";
-      } else if (enteredQuantity > widget.availableQuantity) {
-        quantityError = "Maximum available quantity is ${widget.availableQuantity}.";
+ void _validateQuantity(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        quantityError = "Quantity cannot be empty.";
+        isConfirmEnabled = false;
       } else {
-        quantityError = null; // Clear error if input is valid
+        int enteredQuantity = int.tryParse(value) ?? 0;
+        if (enteredQuantity <= 0) {
+          quantityError = "Quantity must be at least 1.";
+          isConfirmEnabled = false;
+        } else if (enteredQuantity > widget.availableQuantity) {
+          quantityError = "Maximum available quantity is ${widget.availableQuantity}.";
+          isConfirmEnabled = false;
+        } else {
+          quantityError = null; // Clear error if input is valid
+          isConfirmEnabled = selectedBorrowerId != null; // Enable only if borrower is selected
+        }
       }
-    }
-  });
-}
+    });
+  }
+
 
 Widget _buildBorrowerField() {
     return Column(
