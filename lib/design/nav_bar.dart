@@ -1,3 +1,4 @@
+//file name: lib/design/nav_bar.dart
 import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'package:badges/badges.dart' as badges;
@@ -6,7 +7,7 @@ ValueNotifier<int> unreadNotifCount = ValueNotifier<int>(0);
 
 class BottomNavBar extends StatefulWidget {
   final Function(String) onMenuItemSelected;
-  final int initialIndex; // ✅ Added initial index
+  final int initialIndex;
 
   const BottomNavBar({super.key, required this.onMenuItemSelected, this.initialIndex = 1});
 
@@ -20,7 +21,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.initialIndex; // ✅ Use provided initial index
+    _selectedIndex = widget.initialIndex; 
   }
 
   void _onItemTapped(int index) {
@@ -54,10 +55,9 @@ class BottomNavBarState extends State<BottomNavBar> {
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
       items: [
-        _buildNavBarItem(
-          icon: Icons.mail_outline,
+        BottomNavigationBarItem(
+          icon: _buildInboxIcon(),
           label: 'Inbox',
-          index: 0,
         ),
         _buildNavBarItem(
           icon: Icons.dashboard,
@@ -73,21 +73,18 @@ class BottomNavBarState extends State<BottomNavBar> {
     );
   }
 
-  BottomNavigationBarItem _buildNavBarItem({
-    required IconData icon,
-    required String label,
-    required int index,
-  }) {
-    Widget iconWidget = Icon(
-      icon,
-      color: _selectedIndex == index ? Colors.white : Colors.grey,
-    );
-
-    if (index == 0) {
-      iconWidget = ValueListenableBuilder<int>(
-        valueListenable: unreadNotifCount,
-        builder: (context, count, child) {
-          return badges.Badge(
+  /// ✅ Separate method for the Inbox icon to properly listen to changes
+  Widget _buildInboxIcon() {
+    return ValueListenableBuilder<int>(
+      valueListenable: unreadNotifCount,
+      builder: (context, count, child) {
+        return Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: _selectedIndex == 0 ? AppColors.primaryColor : Colors.transparent,
+            shape: BoxShape.circle,
+          ),
+          child: badges.Badge(
             badgeContent: count > 0
                 ? Text(count.toString(), style: const TextStyle(color: Colors.white, fontSize: 12))
                 : null,
@@ -96,14 +93,20 @@ class BottomNavBarState extends State<BottomNavBar> {
               badgeColor: Colors.red,
             ),
             child: Icon(
-              icon,
-              color: _selectedIndex == index ? Colors.white : Colors.grey,
+              Icons.mail_outline,
+              color: _selectedIndex == 0 ? Colors.white : Colors.grey,
             ),
-          );
-        },
-      );
-    }
+          ),
+        );
+      },
+    );
+  }
 
+  BottomNavigationBarItem _buildNavBarItem({
+    required IconData icon,
+    required String label,
+    required int index,
+  }) {
     return BottomNavigationBarItem(
       icon: Container(
         padding: const EdgeInsets.all(10),
@@ -111,7 +114,10 @@ class BottomNavBarState extends State<BottomNavBar> {
           color: _selectedIndex == index ? AppColors.primaryColor : Colors.transparent,
           shape: BoxShape.circle,
         ),
-        child: iconWidget,
+        child: Icon(
+          icon,
+          color: _selectedIndex == index ? Colors.white : Colors.grey,
+        ),
       ),
       label: label,
     );

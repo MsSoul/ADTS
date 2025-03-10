@@ -48,27 +48,33 @@ class NotifApi {
   }
 
   Future<List<Map<String, dynamic>>> fetchNotifications(int empId) async {
-    try {
-      final response = await http.get(Uri.parse("$baseUrl/api/notifications/$empId"));
+  try {
+    final response = await http.get(Uri.parse("$baseUrl/api/notifications/$empId"));
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = jsonDecode(response.body);
-        
-        // 🛑 Update unread count
-        int unreadCount = data.where((notif) => notif['READ'] == 0).length;
-        
-        // 🔥 Notify UI about the change
-        unreadNotifCount.value = unreadCount; 
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
 
-        return List<Map<String, dynamic>>.from(data);
-      } else {
-        throw Exception("Failed to load notifications");
+      // 🛑 Log raw API response
+      logger.i("📩 API Response: ${jsonEncode(data)}");
+
+      // 🛑 Log individual notification dates
+      for (var notif in data) {
+        logger.i("📅 Notification Date: ${notif['createdAt']}");
       }
-    } catch (e) {
-      logger.e("❌ Error fetching notifications: $e");
-      return [];
+
+      // ✅ Ensure unread count is correct
+      int unreadCount = data.where((notif) => notif['READ'] == 0).length;
+      unreadNotifCount.value = unreadCount;
+
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception("Failed to load notifications");
     }
+  } catch (e) {
+    logger.e("❌ Error fetching notifications: $e");
+    return [];
   }
+}
 
   // Mark notification as read
   Future<void> markAsRead(int notifId) async {
