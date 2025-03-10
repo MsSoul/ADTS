@@ -1,4 +1,3 @@
-// filename: lib/home.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'design/main_design.dart';
@@ -10,7 +9,7 @@ import 'main.dart';
 
 class HomeScreen extends StatefulWidget {
   final int empId;
-  final int currentDptId; 
+  final int currentDptId;
 
   const HomeScreen({super.key, required this.empId, required this.currentDptId});
 
@@ -20,41 +19,44 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   late int empId;
-  late int currentDptId; 
+  late int currentDptId;
   late Widget _currentScreen;
+  int _selectedIndex = 0; // ✅ Default to Inbox
 
   @override
   void initState() {
     super.initState();
     empId = widget.empId;
-    currentDptId = widget.currentDptId; 
+    currentDptId = widget.currentDptId;
     debugPrint("HomeScreen initialized with empId: $empId, currentDptId: $currentDptId");
 
-    // ✅ Initialize the default screen with empId and currentDptId
-    _currentScreen = DashboardScreen(empId: empId, currentDptId: currentDptId);
+    // ✅ Set default screen to Inbox (NotifScreen)
+    _currentScreen = NotifScreen(empId: empId);
   }
 
   void _handleMenuSelection(String title) {
-  setState(() {
-    debugPrint("Selected Menu: $title");
-    switch (title) {
-      case 'Notification':
-        _currentScreen = NotifScreen(empId: empId);
-        break;
-      case 'Dashboard':
-        _currentScreen = DashboardScreen(empId: empId, currentDptId: currentDptId);
-        break;
-      case 'Items':
-        ItemsPopup.show(context, empId, currentDptId, (Widget selectedScreen) {
-          setState(() {
-            _currentScreen = selectedScreen;
+    setState(() {
+      debugPrint("Selected Menu: $title");
+      switch (title) {
+        case 'Notification':
+          _selectedIndex = 0;
+          _currentScreen = NotifScreen(empId: empId);
+          break;
+        case 'Dashboard':
+          _selectedIndex = 1;
+          _currentScreen = DashboardScreen(empId: empId, currentDptId: currentDptId);
+          break;
+        case 'Items':
+          _selectedIndex = 2;
+          ItemsPopup.show(context, empId, currentDptId, (Widget selectedScreen) {
+            setState(() {
+              _currentScreen = selectedScreen;
+            });
           });
-        });
-        break;
-    }
-  });
-}
-
+          return;
+      }
+    });
+  }
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -74,23 +76,24 @@ class HomeScreenState extends State<HomeScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: AppBar(
-          automaticallyImplyLeading: false, // Removes the back button
+          automaticallyImplyLeading: false,
           title: const MainDesign(),
-          toolbarHeight: kToolbarHeight, // Ensures standard AppBar height
-          elevation: 0, // Removes any shadow
-          backgroundColor: Colors.transparent, // Makes the app bar background transparent
-          shape: const Border( // Optional: If you want to ensure a clean bottom edge
+          toolbarHeight: kToolbarHeight,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          shape: const Border(
             bottom: BorderSide(
-              color: Colors.black12, // Light shadow below the AppBar
+              color: Colors.black12,
               width: 1.0,
             ),
           ),
-          titleSpacing: 0, // Removes any extra spacing from the title
+          titleSpacing: 0,
         ),
       ),
       body: _currentScreen,
       bottomNavigationBar: BottomNavBar(
         onMenuItemSelected: _handleMenuSelection,
+        initialIndex: _selectedIndex, // ✅ Ensure correct tab is highlighted
       ),
     );
   }
