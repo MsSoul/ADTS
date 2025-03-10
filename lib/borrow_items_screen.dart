@@ -183,9 +183,7 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                       // Items Table
                       Container(
                         decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppColors.primaryColor, width: 2),
-                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.primaryColor, width: 2),borderRadius: BorderRadius.circular(10),
                         ),
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -197,49 +195,24 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                             headingRowHeight: 40,
                             columns: const [
                               DataColumn(
-                                  label: Center(
-                                      child: Text('Action',
-                                          style:
-                                              TextStyle(color: Colors.white)))),
+                                  label: Center(child: Text('Action',style:TextStyle(color: Colors.white)))),
                               DataColumn(
-                                  label: Center(
-                                      child: Text('Owner',
-                                          style:
-                                              TextStyle(color: Colors.white)))),
+                                  label: Center(child: Text('Owner',style:TextStyle(color: Colors.white)))),
                               DataColumn(
-                                  label: Text('Item Name',
-                                      style: TextStyle(color: Colors.white))),
+                                  label: Text('Item Name',style: TextStyle(color: Colors.white))),
                               DataColumn(
-                                  label: Text('Description',
-                                      style: TextStyle(color: Colors.white))),
+                                  label: Text('Description',style: TextStyle(color: Colors.white))),
                               DataColumn(
-                                  label: Text('Quantity',
-                                      style: TextStyle(color: Colors.white))),
+                                  label: Text('Quantity',style: TextStyle(color: Colors.white))),
                               DataColumn(
-                                  label: Center(
-                                      child: Text('ICS',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white)))),
+                                  label: Center(child: Text('ICS',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
                               DataColumn(
-                                  label: Center(
-                                      child: Text('ARE No.',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white)))),
+                                  label: Center(child: Text('ARE No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
                               DataColumn(
-                                  label: Center(
-                                      child: Text('Prop No.',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white)))),
+                                  label: Center(child: Text('Prop No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
                               DataColumn(
-                                  label: Center(
-                                      child: Text('Serial No.',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white)))),
-                            ],
+                                  label: Center(child: Text('Serial No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                        ],
                             rows: filteredItems
                                 .skip(currentPage * itemsPerPage)
                                 .take(itemsPerPage)
@@ -250,12 +223,9 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.primaryColor,
                                       foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),),
                                       minimumSize: const Size(80, 35),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12),
+                                      padding: const EdgeInsets.symmetric(horizontal: 12),
                                     ),
                                     onPressed: () async {
                                       String borrowerName = await _allItemsApi
@@ -263,8 +233,7 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
 
                                       int distributedItemId = item['id']; // Use `id` instead of `distributed_item_id`
 
-                                      log.i(
-                                          "🛠 Opening BorrowTransaction: distributedItemId=$distributedItemId");
+                                      log.i("🛠 Opening BorrowTransaction: distributedItemId=$distributedItemId");
 
                                       showDialog(
                                         context: context,
@@ -285,8 +254,7 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                                   ),
                                 ),
                                 DataCell(Text(
-                                  item['accountable_name'] != null
-                                      ? item['accountable_name']
+                                  item['accountable_name'] != null? item['accountable_name']
                                           .split(' ')
                                           .map((word) => word.isNotEmpty
                                               ? word[0].toUpperCase() +
@@ -299,17 +267,11 @@ class _BorrowItemsScreenState extends State<BorrowItemsScreen> {
                                 )),
                                 DataCell(Text(item['name'])),
                                 DataCell(Text(item['description'])),
-                                DataCell(Text(item['quantity'] != null
-                                    ? item['quantity'].toString()
-                                    : 'N/A')),
-                                DataCell(
-                                    Text(item['ics']?.toString() ?? 'N/A')),
-                                DataCell(
-                                    Text(item['are_no']?.toString() ?? 'N/A')),
-                                DataCell(
-                                    Text(item['prop_no']?.toString() ?? 'N/A')),
-                                DataCell(Text(
-                                    item['serial_no']?.toString() ?? 'N/A')),
+                                DataCell(Text(item['quantity'] != null? item['quantity'].toString(): 'N/A')),
+                                DataCell(Text(item['ics']?.toString() ?? 'N/A')),
+                                DataCell(Text(item['are_no']?.toString() ?? 'N/A')),
+                                DataCell(Text(item['prop_no']?.toString() ?? 'N/A')),
+                                DataCell(Text(item['serial_no']?.toString() ?? 'N/A')),
                               ]);
                             }).toList(),
                           ),
