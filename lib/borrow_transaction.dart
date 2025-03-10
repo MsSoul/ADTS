@@ -1,3 +1,4 @@
+//filename: borrow_transaction.dart
 import 'package:flutter/material.dart';
 import 'package:ibs/design/colors.dart';
 import 'services/borrow_transaction_api.dart';
@@ -6,13 +7,13 @@ import 'design/lending_widgets.dart';
 import 'design/borrowing_widgets.dart';
 
 class BorrowTransaction extends StatefulWidget {
-  final int empId; 
-  final int itemId;
+  final int empId;
+  final int distributedItemId;
   final String itemName;
   final String description;
   final int availableQuantity;
-  final String owner; 
-  final int ownerId; 
+  final String owner;
+  final int ownerId;
   final int currentDptId;
   final String borrower;
 
@@ -20,7 +21,7 @@ class BorrowTransaction extends StatefulWidget {
     super.key,
     required this.empId,
     required this.currentDptId,
-    required this.itemId,
+    required this.distributedItemId,
     required this.itemName,
     required this.description,
     required this.availableQuantity,
@@ -45,6 +46,7 @@ class BorrowTransactionState extends State<BorrowTransaction> {
   @override
   void initState() {
     super.initState();
+    logger.i("📩 BorrowTransaction Initialized: distributedItemId=${widget.distributedItemId}");
     _fetchBorrowerName();
   }
 
@@ -53,7 +55,6 @@ class BorrowTransactionState extends State<BorrowTransaction> {
     try {
       logger.i("Fetching borrower name for empId: ${widget.empId}");
       String? name = await borrowApi.fetchUserName(widget.empId);
-
       if (name.isEmpty) {
         logger.e("Error: Borrower name not found for empId ${widget.empId}");
         setState(() {
@@ -205,19 +206,21 @@ class BorrowTransactionState extends State<BorrowTransaction> {
               quantity: qty,
               ownerName: widget.owner,
               borrowerName: widget.borrower,
+              distributedItemId: widget.distributedItemId,
             );
 
             if (confirm) {
               bool success = await processBorrowTransaction(
                 borrowerId: widget.empId,
                 ownerId: widget.ownerId,
-                itemId: widget.itemId,
+                distributedItemId: widget.distributedItemId,
                 quantity: qty,
                 currentDptId: widget.currentDptId,
                 context: context,
               );
 
               if (success) {
+                logger.i("distributedid: ${widget.distributedItemId}");
                 Navigator.pop(context); // Close borrow transaction dialog
 
                 // Show success dialog
@@ -243,21 +246,29 @@ class BorrowTransactionState extends State<BorrowTransaction> {
   Future<bool> processBorrowTransaction({
     required int borrowerId,
     required int ownerId,
-    required int itemId,
+    required int distributedItemId,
     required int quantity,
     required int currentDptId,
     required BuildContext context,
   }) async {
     BorrowTransactionApi borrowApi = BorrowTransactionApi();
-
+    logger.i("Quantity to send: $quantity");
     bool success = await borrowApi.processBorrowTransaction(
       context: context,
       borrowerId: borrowerId,
       ownerId: ownerId,
-      itemId: itemId,
+      distributedItemId: distributedItemId,
       quantity: quantity,
       currentDptId: currentDptId,
     );
+logger.i("📤 Sending borrow request: {"
+    " borrower_emp_id: ${widget.empId},"
+    " owner_emp_id: ${widget.ownerId},"
+    " distributedItemId: ${widget.distributedItemId},"
+    " quantity: ${qtyController.text},"
+    " currentDptId: ${widget.currentDptId}"
+    " }"
+);
 
     return success;
   }

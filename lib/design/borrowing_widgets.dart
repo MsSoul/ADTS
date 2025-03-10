@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
+import 'package:logger/logger.dart';
+
+final logger = Logger();
 
 Future<bool> showBorrowConfirmationDialog({
   required BuildContext context,
@@ -7,8 +10,13 @@ Future<bool> showBorrowConfirmationDialog({
   required String description,
   required int quantity,
   required String borrowerName,
-  required String ownerName, 
+  required String ownerName,
+  required int distributedItemId,
+
+
 }) async {
+  logger.i("🛑 Borrow Confirmation Dialog - Item: $itemName | DistributedItemId: $distributedItemId");
+  
   return await showDialog(
     context: context,
     builder: (BuildContext dialogContext) {

@@ -211,7 +211,7 @@ Widget buildActionButtons(
               // 🔥 Submit Transaction
               final response = await lendTransactionApi.submitLendingTransaction(
                 empId: widget.empId,
-                itemId: widget.itemId,
+                distributedItemId: widget.distributedItemId,
                 itemName: widget.itemName,
                 description: widget.description,
                 quantity: quantity,

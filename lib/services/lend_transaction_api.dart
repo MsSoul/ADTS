@@ -51,7 +51,7 @@ class LendTransactionApi {
   // Submit Lending Transaction (Updated for Option 2)
 Future<Map<String, dynamic>> submitLendingTransaction({
   required int empId,
-  required int itemId,
+  required int distributedItemId,
   required String itemName,
   required String description,
   required int quantity,
@@ -64,7 +64,7 @@ Future<Map<String, dynamic>> submitLendingTransaction({
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'emp_id': empId,
-        'item_id': itemId,
+        'distributedItemId': distributedItemId,
         'item_name': itemName,
         'description': description,
         'quantity': quantity,

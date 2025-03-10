@@ -8,7 +8,7 @@ import 'design/lending_widgets.dart';
 
 class LendingTransaction extends StatefulWidget {
   final int empId;
-  final int itemId;
+  final int distributedItemId;
   final String itemName;
   final String description;
   final int currentDptId;
@@ -19,7 +19,7 @@ class LendingTransaction extends StatefulWidget {
   const LendingTransaction({
     super.key,
     required this.empId,
-    required this.itemId,
+    required this.distributedItemId,
     required this.itemName,
     required this.description,
     required this.currentDptId,
