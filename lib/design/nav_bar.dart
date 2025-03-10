@@ -1,9 +1,13 @@
+//filename:lib/design/nav_bar.dart
 import 'package:flutter/material.dart';
-import 'colors.dart'; 
+import 'colors.dart';
+import 'package:badges/badges.dart' as badges;
+
+ValueNotifier<int> unreadNotifCount = ValueNotifier<int>(-1);
 
 class BottomNavBar extends StatefulWidget {
   final Function(String) onMenuItemSelected;
-  
+
   const BottomNavBar({super.key, required this.onMenuItemSelected});
 
   @override
@@ -11,7 +15,7 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 1; // Default to Dashboard
+  int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -20,7 +24,8 @@ class BottomNavBarState extends State<BottomNavBar> {
 
     switch (index) {
       case 0:
-        widget.onMenuItemSelected('Notification'); // Changed from Notification to Inbox
+        widget.onMenuItemSelected(
+            'Notification'); // Changed from Notification to Inbox
         break;
       case 1:
         widget.onMenuItemSelected('Dashboard');
@@ -34,7 +39,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed, 
+      type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
       selectedItemColor: AppColors.primaryColor,
       unselectedItemColor: Colors.grey,
@@ -45,8 +50,8 @@ class BottomNavBarState extends State<BottomNavBar> {
       unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
       items: [
         _buildNavBarItem(
-          icon: Icons.mail_outline, // Changed icon to mail outline
-          label: 'Inbox', // Changed label from Notification to Inbox
+          icon: Icons.mail_outline,
+          label: 'Inbox',
           index: 0,
         ),
         _buildNavBarItem(
@@ -68,17 +73,41 @@ class BottomNavBarState extends State<BottomNavBar> {
     required String label,
     required int index,
   }) {
+    Widget iconWidget = Icon(
+      icon,
+      color: _selectedIndex == index ? Colors.white : Colors.grey,
+    );
+
+    if (index == 0) {
+      iconWidget = ValueListenableBuilder<int>(
+        valueListenable: unreadNotifCount,
+        builder: (context, count, child) {
+          return badges.Badge(
+            badgeContent: Text(
+              count > 0 ? count.toString() : '',
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+            showBadge: count > 0,
+            badgeStyle: const badges.BadgeStyle(
+              badgeColor: Colors.red,
+            ),
+            child: child,
+          );
+        },
+        child: iconWidget,
+      );
+    }
+
     return BottomNavigationBarItem(
       icon: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: _selectedIndex == index ? AppColors.primaryColor : Colors.transparent,
+          color: _selectedIndex == index
+              ? AppColors.primaryColor
+              : Colors.transparent,
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          color: _selectedIndex == index ? Colors.white : Colors.grey,
-        ),
+        child: iconWidget,
       ),
       label: label,
     );

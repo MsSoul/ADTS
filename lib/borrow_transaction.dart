@@ -6,13 +6,13 @@ import 'design/lending_widgets.dart';
 import 'design/borrowing_widgets.dart';
 
 class BorrowTransaction extends StatefulWidget {
-  final int empId; // Logged-in user (Borrower)
+  final int empId; 
   final int itemId;
   final String itemName;
   final String description;
   final int availableQuantity;
-  final String owner; // Owner's name
-  final int ownerId; // Owner's ID
+  final String owner; 
+  final int ownerId; 
   final int currentDptId;
   final String borrower;
 

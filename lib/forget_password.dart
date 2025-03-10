@@ -93,7 +93,7 @@ class ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   InputDecoration customInputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: AppColors.primaryColor),
+      labelStyle: const TextStyle(color: AppColors.primaryColor),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: AppColors.primaryColor),

@@ -35,8 +35,9 @@ class UserApi {
           await prefs.setString(
               'firstLetter', firstName.substring(0, 1).toUpperCase());
         }
-        if (currentDptId != null)
+        if (currentDptId != null) {
           await prefs.setInt('currentDptId', currentDptId);
+        }
         if (token != null) await prefs.setString('token', token);
 
         logger.i("Login successful: emp_id=$empId, currentDptId=$currentDptId");
