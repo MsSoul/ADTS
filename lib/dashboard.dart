@@ -168,30 +168,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
-                          border: TableBorder.all(color: AppColors.primaryColor, width: 1.5),
-                          dataRowMinHeight: 40, 
+                          border: TableBorder.all(
+                              color: AppColors.primaryColor, width: 1.5),
+                          dataRowMinHeight: 40,
                           dataRowMaxHeight: 40,
                           headingRowColor: WidgetStateColor.resolveWith(
                             (states) => AppColors.primaryColor,
                           ),
                           headingRowHeight: 40,
                           columns: const [
-                            DataColumn(label: Center(child: Text('Name', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('Description', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('ICS', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('ARE No.', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('Prop No.', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('Serial No.', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('Unit Value', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('Total Value', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
-                            DataColumn(label: Center(child: Text('Remarks', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Name',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Description',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Available Quantity',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Original Quantity',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('ICS',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('ARE No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Prop No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Serial No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Unit Value',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Total Value',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                            DataColumn(
+                                label: Center(child: Text('Remarks',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
                           ],
                           rows: _paginatedItems.map((item) {
                             return DataRow(cells: [
                               DataCell(Text(item['name']?.toString() ?? 'N/A')),
                               DataCell(Text(item['description']?.toString() ?? 'N/A')),
                               DataCell(Text(item['quantity']?.toString() ?? 'N/A')),
+                              DataCell(Text(item['ORIGINAL QUANTITY']?.toString() ??    'N/A')),
                               DataCell(Text(item['ics']?.toString() ?? 'N/A')),
                               DataCell(Text(item['are_no']?.toString() ?? 'N/A')),
                               DataCell(Text(item['prop_no']?.toString() ?? 'N/A')),
