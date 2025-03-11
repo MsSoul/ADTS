@@ -108,63 +108,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage.isNotEmpty
-              ? Center(
-                  child: Text(
-                    '⚠ $_errorMessage',
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryColor),
-                  ),
-                )
-              : Padding(
+      body: RefreshIndicator(
+  onRefresh: _loadItems,
+  child: _isLoading
+      ? const Center(child: CircularProgressIndicator())
+      : _errorMessage.isNotEmpty
+          ? Center(
+              child: Text(
+                '⚠ $_errorMessage',
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryColor),
+              ),
+            )
+          : Column(
+              children: [
+                Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Column(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Search Items',
+                      prefixIcon: const Icon(Icons.search,
+                          color: AppColors.primaryColor),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                            color: AppColors.primaryColor, width: 2),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                            color: AppColors.primaryColor, width: 3),
+                      ),
+                    ),
+                    onChanged: (value) => _filterItems(),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: _currentPage > 0 ? _previousPage : null,
+                    ),
+                    Text("Page ${_currentPage + 1} of $totalPages"),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_forward),
+                      onPressed: (_currentPage + 1) * _itemsPerPage <
+                              _filteredItems.length
+                          ? _nextPage
+                          : null,
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 5),
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            labelText: 'Search Items',
-                            prefixIcon: const Icon(Icons.search,
-                                color: AppColors.primaryColor),
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                  color: AppColors.primaryColor, width: 2),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                  color: AppColors.primaryColor, width: 3),
-                            ),
-                          ),
-                          onChanged: (value) => _filterItems(),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: _currentPage > 0 ? _previousPage : null,
-                          ),
-                          Text("Page ${_currentPage + 1} of $totalPages"),
-                          IconButton(
-                            icon: const Icon(Icons.arrow_forward),
-                            onPressed: (_currentPage + 1) * _itemsPerPage <
-                                    _filteredItems.length
-                                ? _nextPage
-                                : null,
-                          ),
-                        ],
-                      ),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
@@ -205,7 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               DataCell(Text(item['name']?.toString() ?? 'N/A')),
                               DataCell(Text(item['description']?.toString() ?? 'N/A')),
                               DataCell(Text(item['quantity']?.toString() ?? 'N/A')),
-                              DataCell(Text(item['ORIGINAL QUANTITY']?.toString() ??    'N/A')),
+                              DataCell(Text(item['ORIGINAL_QUANTITY']?.toString() ?? 'N/A')),
                               DataCell(Text(item['ics']?.toString() ?? 'N/A')),
                               DataCell(Text(item['are_no']?.toString() ?? 'N/A')),
                               DataCell(Text(item['prop_no']?.toString() ?? 'N/A')),
@@ -220,6 +224,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
+              ],
+            ),
+),
+
     );
   }
 }
