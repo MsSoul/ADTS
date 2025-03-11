@@ -33,7 +33,7 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
   late int currentDptId;
   late String itemName;
   late String description;
-  late int distributedItemId;
+  late int itemId;
 
   @override
   void initState() {
@@ -55,8 +55,8 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
         allItems = items.map((item) {
           return {
             ...item,
-            'distributedItemId': item['id'] as int? ?? 0, // Ensure int, default to 0
-            'quantity': item['quantity'] as int? ?? 0,    // Default 0 if null
+            'ITEM_ID': item['ITEM_ID'],
+            'quantity': item['quantity'] as int? ?? 0,  
           };
         }).toList();
 
@@ -78,7 +78,6 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
     });
   }
 }
-
 
   void _searchItems(String query) {
     setState(() {
@@ -218,44 +217,14 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                               dataRowMaxHeight: 40,
                               headingRowHeight: 40,
                               columns: const [
-                                DataColumn(
-                                    label: Center(
-                                        child: Text(' Action',
-                                            style: TextStyle(
-                                                color: Colors.white)))),
-                                DataColumn(
-                                    label: Text('Name',
-                                        style: TextStyle(color: Colors.white))),
-                                DataColumn(
-                                    label: Text('Description',
-                                        style: TextStyle(color: Colors.white))),
-                                DataColumn(
-                                    label: Text('Quantity',
-                                        style: TextStyle(color: Colors.white))),
-                                DataColumn(
-                                    label: Center(
-                                        child: Text('ICS',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white)))),
-                                DataColumn(
-                                    label: Center(
-                                        child: Text('ARE No.',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white)))),
-                                DataColumn(
-                                    label: Center(
-                                        child: Text('Prop No.',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white)))),
-                                DataColumn(
-                                    label: Center(
-                                        child: Text('Serial No.',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white)))),
+                                DataColumn(label: Center(child: Text(' Action',style: TextStyle(color: Colors.white)))),
+                                DataColumn(label: Text('Name',    style: TextStyle(color: Colors.white))),
+                                DataColumn(label: Text('Description',    style: TextStyle(color: Colors.white))),
+                                DataColumn(label: Text('Quantity',    style: TextStyle(color: Colors.white))),
+                                DataColumn(label: Center(child: Text('ICS',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                                DataColumn(label: Center(child: Text('ARE No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                                DataColumn(label: Center(child: Text('Prop No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+                                DataColumn(label: Center(child: Text('Serial No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
                               ],
                               rows: filteredItems
                                   .skip(currentPage * itemsPerPage)
@@ -278,23 +247,21 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                                           ),
                                         ),
                                         onPressed: () {
-                                          int distributedItemId = item['distributedItemId']; // Use `id` from `_loadItems()`
+                                          int itemId = item['ITEM_ID']; // Use `id` from `_loadItems()`
 
-                                          log.i(
-                                              "🛠 Opening LendingTransaction: distributedItemId=$distributedItemId");
+                                          log.i("🛠 Opening LendingTransaction: itemId=$itemId");
 
                                           showDialog(
                                             context: context,
                                             builder: (context) =>
                                                 LendingTransaction(
                                               empId: widget.empId,
-                                              distributedItemId:distributedItemId,
+                                              itemId:itemId,
                                               itemName: item['name'],
                                               description: item['description'],
                                               currentDptId: widget.currentDptId,
                                               initialTransactions: transactions,
-                                              availableQuantity:
-                                                  item['quantity'],
+                                              availableQuantity:item['quantity'],
                                             ),
                                           );
                                         },
@@ -305,14 +272,10 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                                   DataCell(Text(item['name'])),
                                   DataCell(Text(item['description'])),
                                   DataCell(Text(item['quantity'].toString())),
-                                  DataCell(
-                                      Text(item['ics']?.toString() ?? 'N/A')),
-                                  DataCell(Text(
-                                      item['are_no']?.toString() ?? 'N/A')),
-                                  DataCell(Text(
-                                      item['prop_no']?.toString() ?? 'N/A')),
-                                  DataCell(Text(
-                                      item['serial_no']?.toString() ?? 'N/A')),
+                                  DataCell(Text(item['ics']?.toString() ?? 'N/A')),
+                                  DataCell(Text(item['are_no']?.toString() ?? 'N/A')),
+                                  DataCell(Text(item['prop_no']?.toString() ?? 'N/A')),
+                                  DataCell(Text(item['serial_no']?.toString() ?? 'N/A')),
                                 ]);
                               }).toList(),
                             ),
@@ -362,11 +325,7 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8),
-                                    child: Text(
-                                      "/ $totalPages",
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold),
+                                    child: Text("/ $totalPages",style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
                                     ),
                                   ),
 

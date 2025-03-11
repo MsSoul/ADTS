@@ -6,7 +6,8 @@ import '../services/lend_transaction_api.dart';
 import '../services/config.dart'; // Import Config
 
 final Logger logger = Logger();
-final LendTransactionApi lendTransactionApi = LendTransactionApi(Config.baseUrl); 
+final LendTransactionApi lendTransactionApi =
+    LendTransactionApi(Config.baseUrl);
 
 Widget buildDialogTitle() {
   return const Center(
@@ -22,7 +23,6 @@ Widget buildBorrowDialogTitle() {
     child: Text(
       'Request Borrow Item',
       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-
     ),
   );
 }
@@ -31,7 +31,8 @@ Widget buildInfoBox(String label, String text) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+      Text(label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
       Container(
         height: 40,
         width: double.infinity,
@@ -48,23 +49,28 @@ Widget buildInfoBox(String label, String text) {
   );
 }
 
-Widget buildTextField(String label, String hint, { 
-  TextEditingController? controller, 
-  Function(String)? onChanged, 
-  String? errorText, 
+Widget buildTextField(
+  String label,
+  String hint, {
+  TextEditingController? controller,
+  Function(String)? onChanged,
+  String? errorText,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+      Text(label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
 
       // Show Error Message Below Label
-      if (errorText != null) 
+      if (errorText != null)
         Padding(
-          padding: const EdgeInsets.only(top: 2, bottom: 3), // Space between label & error
+          padding: const EdgeInsets.only(
+              top: 2, bottom: 3), // Space between label & error
           child: Text(
             errorText,
-            style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+                color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
           ),
         ),
 
@@ -74,15 +80,17 @@ Widget buildTextField(String label, String hint, {
         child: TextField(
           controller: controller,
           onChanged: onChanged,
-          keyboardType: TextInputType.number, 
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8), 
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
             filled: true,
             fillColor: Colors.white,
             hintText: hint,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: AppColors.primaryColor, width: 1),
+              borderSide:
+                  const BorderSide(color: AppColors.primaryColor, width: 1),
             ),
           ),
         ),
@@ -92,15 +100,13 @@ Widget buildTextField(String label, String hint, {
   );
 }
 
-
 // Add button function
 Widget buildActionButtons(
-  BuildContext context, 
-  TextEditingController qtyController, 
-  TextEditingController borrowerController, 
-  dynamic widget, 
-  {required int? selectedBorrowerId} 
-) {
+    BuildContext context,
+    TextEditingController qtyController,
+    TextEditingController borrowerController,
+    dynamic widget,
+    {required int? selectedBorrowerId}) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.end,
     children: [
@@ -109,7 +115,7 @@ Widget buildActionButtons(
         width: 120,
         child: ElevatedButton(
           onPressed: () {
-            
+            logger.i("🚫 Request canceled by user.");
             Navigator.of(context).pop(); // Close the main dialog
           },
           style: TextButton.styleFrom(
@@ -125,14 +131,33 @@ Widget buildActionButtons(
         width: 120,
         child: ElevatedButton(
           onPressed: () async {
+            logger.i("📌 Request button clicked!");
+
             int? quantity = int.tryParse(qtyController.text);
-            
-            if (quantity == null || quantity <= 0 || quantity > widget.availableQuantity) {
+            logger.i("""
+                    📤 Submitting Lending Transaction:
+                    -----------------------------------
+                    👤 Employee ID: ${widget.empId}
+                    📦 Item ID: ${widget.itemId}
+                    🏷️ Item Name: ${widget.itemName}
+                    📝 Description: ${widget.description}
+                    🔢 Quantity: $quantity
+                    👥 Borrower ID: $selectedBorrowerId
+                    🏢 Current Department ID: ${widget.currentDptId}
+                    🙍‍♂️ Borrower Name: ${borrowerController.text}
+                    -----------------------------------
+                    """);
+
+            if (quantity == null ||
+                quantity <= 0 ||
+                quantity > widget.availableQuantity) {
+              logger.w(
+                  "❌ Invalid quantity: $quantity (Available: ${widget.availableQuantity})");
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Please enter a valid quantity.'),
-                    backgroundColor: Colors.red, 
+                    backgroundColor: Colors.red,
                   ),
                 );
               }
@@ -140,17 +165,17 @@ Widget buildActionButtons(
             }
 
             if (selectedBorrowerId == null) {
+              logger.w("❌ Borrower not selected.");
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Please select a borrower.'),
-                    backgroundColor: Colors.red, // Set background color to red
+                    backgroundColor: Colors.red,
                   ),
                 );
               }
               return;
             }
-
 
             // Show Confirmation Dialog
             bool confirm = await showDialog(
@@ -166,7 +191,8 @@ Widget buildActionButtons(
                       _buildDialogText("Item", widget.itemName),
                       _buildDialogText("Description", widget.description),
                       _buildDialogText("Quantity", quantity.toString()),
-                      _buildDialogText("Borrower Name", borrowerController.text),
+                      _buildDialogText(
+                          "Borrower Name", borrowerController.text),
                     ],
                   ),
                   actions: [
@@ -177,10 +203,13 @@ Widget buildActionButtons(
                         SizedBox(
                           width: 120,
                           child: ElevatedButton(
-                            onPressed: () => Navigator.of(dialogContext).pop(false),
+                            onPressed: () {
+                              logger.i("🚫 Request confirmation canceled.");
+                              Navigator.of(dialogContext).pop(false);
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey[300],
-                              foregroundColor: Colors.black, 
+                              foregroundColor: Colors.black,
                             ),
                             child: const Text('Cancel'),
                           ),
@@ -190,7 +219,10 @@ Widget buildActionButtons(
                         SizedBox(
                           width: 120,
                           child: ElevatedButton(
-                            onPressed: () => Navigator.of(dialogContext).pop(true),
+                            onPressed: () {
+                              logger.i("✅ Request confirmed by user.");
+                              Navigator.of(dialogContext).pop(true);
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryColor,
                               foregroundColor: Colors.white,
@@ -205,54 +237,59 @@ Widget buildActionButtons(
               },
             );
 
-            if (!context.mounted || confirm != true) return; // Check if confirmed
+            if (!context.mounted || confirm != true) {
+              logger.w("⚠️ Request was not confirmed.");
+              return;
+            }
 
             try {
-              // 🔥 Submit Transaction
-              final response = await lendTransactionApi.submitLendingTransaction(
+              logger.i("📤 Sending lending transaction...");
+              final response =
+                  await lendTransactionApi.submitLendingTransaction(
                 empId: widget.empId,
-                distributedItemId: widget.distributedItemId,
-                itemName: widget.itemName,
-                description: widget.description,
+                itemId: widget.itemId,
                 quantity: quantity,
                 borrowerId: selectedBorrowerId,
-                currentDptId: widget.currentDptId, 
+                currentDptId: widget.currentDptId,
               );
 
-              logger.i("Submitting Lending Transaction with Borrower ID: $selectedBorrowerId");
+              logger.i("🛠️ API Response: $response");
 
               if (!context.mounted) return;
 
               // ✅ Show Success Dialog (After Closing Confirmation)
               await showDialog(
                 context: context,
-                barrierDismissible: false, // Prevent accidental closing
+                barrierDismissible: false,
                 builder: (BuildContext successContext) {
                   return AlertDialog(
-                  title: const Text('🎉 Success!'),
-                  content: Text(response['message'] ?? 'Request submitted successfully!'),
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(successContext).pop(); // Close Success Dialog
-                        Navigator.of(context).pop(); // Close Main Dialog
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    title: const Text('🎉 Success!'),
+                    content: Text(response['message'] ??
+                        'Request submitted successfully!'),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          logger.i("🎉 Success dialog closed by user.");
+                          Navigator.of(successContext)
+                              .pop(); // Close Success Dialog
+                          Navigator.of(context).pop(); // Close Main Dialog
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
+                        child: const Text('OK'),
                       ),
-                      child: const Text('OK'),
-                    ),
-                  ],
-                );
+                    ],
+                  );
                 },
               );
             } catch (e) {
+              logger.e("🔥 Error submitting transaction: $e");
               if (context.mounted) {
-                logger.e("Error submitting transaction: $e");
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Error submitting request: $e')),
                 );
@@ -278,11 +315,12 @@ Widget _buildDialogText(String label, String value) {
       text: TextSpan(
         style: const TextStyle(fontSize: 14, color: Colors.black),
         children: [
-          TextSpan(text: "$label: ", style: const TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(
+              text: "$label: ",
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           TextSpan(text: value),
         ],
       ),
     ),
   );
 }
-
