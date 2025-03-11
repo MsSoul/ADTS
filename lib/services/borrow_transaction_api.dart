@@ -1,9 +1,9 @@
 //filename:lib/services/borrow_transaction_api.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:ibs/design/borrowing_widgets.dart';
+//import 'package:ibs/design/borrowing_widgets.dart';
 import 'package:logger/logger.dart';
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 import 'config.dart';
 
 class BorrowTransactionApi {
@@ -52,48 +52,39 @@ Future<List<Map<String, dynamic>>> fetchAllItems(
 
 
   Future<bool> processBorrowTransaction({
-    required int borrowerId,
-    required int ownerId,
-    required int itemId,
-    required int quantity,
-    required int currentDptId,
-    required BuildContext context,
-  }) async {
-    final url = Uri.parse('$baseUrl/api/borrowTransaction/borrow');
-    logger.i("🔄 Processing borrow transaction: $url");
+  required int borrowerId,
+  required int ownerId,
+  required int itemId,
+  required int quantity,
+  required int currentDptId,
+}) async {
+  final url = Uri.parse('$baseUrl/api/borrowTransaction/borrow');
+  logger.i("🔄 Processing borrow transaction: $url");
 
-    try {
-      final requestBody = json.encode({
-        'borrower_emp_id': borrowerId,
-        'owner_emp_id': ownerId,
-        'itemId': itemId,
-        'quantity': quantity,
-        'DPT_ID': currentDptId,
-      });
+  try {
+    final requestBody = json.encode({
+      'borrower_emp_id': borrowerId,
+      'owner_emp_id': ownerId,
+      'itemId': itemId,
+      'quantity': quantity,
+      'DPT_ID': currentDptId,
+    });
 
-      logger.i("Request Body: $requestBody");
+    logger.i("Request Body: $requestBody");
 
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: requestBody,
-      );
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: requestBody,
+    );
 
-      if (response.statusCode == 201) {
-        showSuccessDialog(context: context);
-        return true;
-      } else {
-        logger.w(
-            "⚠ Failed to borrow item. Status: ${response.statusCode}, Response: ${response.body}");
-        logger.w("Raw Response Body: ${response.body}"); //log the body.
-        return false;
-      }
-    } catch (e, stackTrace) {
-      logger.e("❌ Error processing borrow transaction",
-          error: e, stackTrace: stackTrace);
-      return false;
-    }
+    return response.statusCode == 201;
+  } catch (e, stackTrace) {
+    logger.e("❌ Error processing borrow transaction", error: e, stackTrace: stackTrace);
+    return false;
   }
+}
+
 
   /// Fetch employee name based on employee ID
   Future<String> fetchUserName(int empId) async {

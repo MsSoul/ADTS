@@ -161,8 +161,11 @@ class BorrowTransactionState extends State<BorrowTransaction> {
     );
   }
 
-  Widget buildBorrowActionButton(BuildContext context,
-      TextEditingController qtyController, BorrowTransaction widget) {
+  Widget buildBorrowActionButton(
+    BuildContext context,
+    TextEditingController qtyController,
+    BorrowTransaction widget,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -170,7 +173,7 @@ class BorrowTransactionState extends State<BorrowTransaction> {
           onPressed: () => Navigator.pop(context),
           style: TextButton.styleFrom(
             foregroundColor: Colors.grey[700],
-            backgroundColor: Colors.grey[200], // Gray color for Cancel
+            backgroundColor: Colors.grey[200],
           ),
           child: const Text("Cancel"),
         ),
@@ -195,7 +198,7 @@ class BorrowTransactionState extends State<BorrowTransaction> {
                   ),
                 );
               }
-              return; // Stop further execution
+              return;
             }
 
             // Proceed with confirmation
@@ -219,16 +222,16 @@ class BorrowTransactionState extends State<BorrowTransaction> {
                 context: context,
               );
 
-              if (success) {
-                logger.i("itemId: ${widget.itemId}");
-                Navigator.pop(context); // Close borrow transaction dialog
+              if (context.mounted) {
+                if (success) {
+                  logger.i("itemId: ${widget.itemId}");
+                  Navigator.pop(context); // Close borrow transaction dialog
 
-                // Show success dialog
-                if (context.mounted) {
+                  // Show success dialog
                   await showSuccessDialog(context: context);
+                } else {
+                  logger.e("Failed to borrow item.");
                 }
-              } else {
-                logger.e("Failed to borrow item.");
               }
             }
           },
@@ -254,21 +257,19 @@ class BorrowTransactionState extends State<BorrowTransaction> {
     BorrowTransactionApi borrowApi = BorrowTransactionApi();
     logger.i("Quantity to send: $quantity");
     bool success = await borrowApi.processBorrowTransaction(
-      context: context,
       borrowerId: borrowerId,
       ownerId: ownerId,
       itemId: itemId,
       quantity: quantity,
       currentDptId: currentDptId,
     );
-logger.i("📤 Sending borrow request: {"
-    " borrower_emp_id: ${widget.empId},"
-    " owner_emp_id: ${widget.ownerId},"
-    " itemId: ${widget.itemId},"
-    " quantity: ${qtyController.text},"
-    " currentDptId: ${widget.currentDptId}"
-    " }"
-);
+    logger.i("📤 Sending borrow request: {"
+        " borrower_emp_id: ${widget.empId},"
+        " owner_emp_id: ${widget.ownerId},"
+        " itemId: ${widget.itemId},"
+        " quantity: ${qtyController.text},"
+        " currentDptId: ${widget.currentDptId}"
+        " }");
 
     return success;
   }
