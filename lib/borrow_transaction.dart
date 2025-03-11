@@ -8,7 +8,7 @@ import 'design/borrowing_widgets.dart';
 
 class BorrowTransaction extends StatefulWidget {
   final int empId;
-  final int distributedItemId;
+  final int itemId;
   final String itemName;
   final String description;
   final int availableQuantity;
@@ -21,7 +21,7 @@ class BorrowTransaction extends StatefulWidget {
     super.key,
     required this.empId,
     required this.currentDptId,
-    required this.distributedItemId,
+    required this.itemId,
     required this.itemName,
     required this.description,
     required this.availableQuantity,
@@ -46,7 +46,7 @@ class BorrowTransactionState extends State<BorrowTransaction> {
   @override
   void initState() {
     super.initState();
-    logger.i("📩 BorrowTransaction Initialized: distributedItemId=${widget.distributedItemId}");
+    logger.i("📩 BorrowTransaction Initialized: itemId=${widget.itemId}");
     _fetchBorrowerName();
   }
 
@@ -206,21 +206,21 @@ class BorrowTransactionState extends State<BorrowTransaction> {
               quantity: qty,
               ownerName: widget.owner,
               borrowerName: widget.borrower,
-              distributedItemId: widget.distributedItemId,
+              itemId: widget.itemId,
             );
 
             if (confirm) {
               bool success = await processBorrowTransaction(
                 borrowerId: widget.empId,
                 ownerId: widget.ownerId,
-                distributedItemId: widget.distributedItemId,
+                itemId: widget.itemId,
                 quantity: qty,
                 currentDptId: widget.currentDptId,
                 context: context,
               );
 
               if (success) {
-                logger.i("distributedid: ${widget.distributedItemId}");
+                logger.i("itemId: ${widget.itemId}");
                 Navigator.pop(context); // Close borrow transaction dialog
 
                 // Show success dialog
@@ -246,7 +246,7 @@ class BorrowTransactionState extends State<BorrowTransaction> {
   Future<bool> processBorrowTransaction({
     required int borrowerId,
     required int ownerId,
-    required int distributedItemId,
+    required int itemId,
     required int quantity,
     required int currentDptId,
     required BuildContext context,
@@ -257,14 +257,14 @@ class BorrowTransactionState extends State<BorrowTransaction> {
       context: context,
       borrowerId: borrowerId,
       ownerId: ownerId,
-      distributedItemId: distributedItemId,
+      itemId: itemId,
       quantity: quantity,
       currentDptId: currentDptId,
     );
 logger.i("📤 Sending borrow request: {"
     " borrower_emp_id: ${widget.empId},"
     " owner_emp_id: ${widget.ownerId},"
-    " distributedItemId: ${widget.distributedItemId},"
+    " itemId: ${widget.itemId},"
     " quantity: ${qtyController.text},"
     " currentDptId: ${widget.currentDptId}"
     " }"

@@ -11,67 +11,67 @@ Future<bool> showBorrowConfirmationDialog({
   required int quantity,
   required String borrowerName,
   required String ownerName,
-  required int distributedItemId,
-
-
+  required int itemId,
 }) async {
-  logger.i("🛑 Borrow Confirmation Dialog - Item: $itemName | DistributedItemId: $distributedItemId");
-  
+  logger.i(
+      "🛑 Borrow Confirmation Dialog - Item: $itemName | itemId: $itemId | owner: $ownerName | borrower: $borrowerName");
+
   return await showDialog(
-    context: context,
-    builder: (BuildContext dialogContext) {
-      return AlertDialog(
-        backgroundColor: Colors.white,
-        title: const Text(
-          'Confirm Borrow Request',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDialogText("Item", itemName),
-            _buildDialogText("Description", description),
-            _buildDialogText("Quantity", quantity.toString()),
-            _buildDialogText("Owner Name", _capitalizeWords(ownerName)),
-            _buildDialogText("Borrower Name", borrowerName),
-          ],
-        ),
-        actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Cancel Button
-              SizedBox(
-                width: 120,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    foregroundColor: Colors.black,
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            title: const Text(
+              'Confirm Borrow Request',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDialogText("Item", itemName),
+                _buildDialogText("Description", description),
+                _buildDialogText("Quantity", quantity.toString()),
+                _buildDialogText("Owner Name", _capitalizeWords(ownerName)),
+                _buildDialogText("Borrower Name", borrowerName),
+              ],
+            ),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Cancel Button
+                  SizedBox(
+                    width: 120,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.black,
+                      ),
+                      child: const Text('Cancel'),
+                    ),
                   ),
-                  child: const Text('Cancel'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              // Confirm Button
-              SizedBox(
-                width: 120,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    foregroundColor: Colors.white,
+                  const SizedBox(width: 10),
+                  // Confirm Button
+                  SizedBox(
+                    width: 120,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Confirm'),
+                    ),
                   ),
-                  child: const Text('Confirm'),
-                ),
+                ],
               ),
             ],
-          ),
-        ],
-      );
-    },
-  ) ?? false; // Return false if the user dismisses the dialog
+          );
+        },
+      ) ??
+      false; // Return false if the user dismisses the dialog
 }
 
 /// Helper function to create styled text for dialog
@@ -92,11 +92,12 @@ Widget _buildDialogText(String label, String value) {
     ),
   );
 }
+
 String _capitalizeWords(String text) {
   return text
       .split(' ')
-      .map((word) => word.isNotEmpty 
-          ? word[0].toUpperCase() + word.substring(1).toLowerCase() 
+      .map((word) => word.isNotEmpty
+          ? word[0].toUpperCase() + word.substring(1).toLowerCase()
           : '')
       .join(' ');
 }

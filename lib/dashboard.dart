@@ -166,64 +166,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 Expanded(
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          border: TableBorder.all(
-                              color: AppColors.primaryColor, width: 1.5),
-                          dataRowMinHeight: 40,
-                          dataRowMaxHeight: 40,
-                          headingRowColor: WidgetStateColor.resolveWith(
-                            (states) => AppColors.primaryColor,
-                          ),
-                          headingRowHeight: 40,
-                          columns: const [
-                            DataColumn(
-                                label: Center(child: Text('Name',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('Description',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('Available Quantity',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('Original Quantity',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('ICS',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('ARE No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('Prop No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('Serial No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('Unit Value',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('Total Value',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                            DataColumn(
-                                label: Center(child: Text('Remarks',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
-                          ],
-                          rows: _paginatedItems.map((item) {
-                            return DataRow(cells: [
-                              DataCell(Text(item['name']?.toString() ?? 'N/A')),
-                              DataCell(Text(item['description']?.toString() ?? 'N/A')),
-                              DataCell(Text(item['quantity']?.toString() ?? 'N/A')),
-                              DataCell(Text(item['ORIGINAL_QUANTITY']?.toString() ?? 'N/A')),
-                              DataCell(Text(item['ics']?.toString() ?? 'N/A')),
-                              DataCell(Text(item['are_no']?.toString() ?? 'N/A')),
-                              DataCell(Text(item['prop_no']?.toString() ?? 'N/A')),
-                              DataCell(Text(item['serial_no']?.toString() ?? 'N/A')),
-                              DataCell(Text('₱ ${(item['unit_value'] ?? 0.0).toStringAsFixed(2)}')),
-                              DataCell(Text('₱ ${(item['total_value'] ?? 0.0).toStringAsFixed(2)}')),
-                              DataCell(Text(item['remarks']?.toString() ?? 'N/A')),
-                            ]);
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+  child: ListView(
+    physics: const AlwaysScrollableScrollPhysics(),
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(10.0), // Add padding here
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            border: TableBorder.all(
+                color: AppColors.primaryColor, width: 1.5),
+            dataRowMinHeight: 40,
+            dataRowMaxHeight: 40,
+            headingRowColor: WidgetStateColor.resolveWith(
+              (states) => AppColors.primaryColor,
+            ),
+            headingRowHeight: 40,
+            columns: const [
+              DataColumn(
+                  label: Center(child: Text('Name',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('Description',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('Available Quantity',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('Original Quantity',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('ICS',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('ARE No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('Prop No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('Serial No.',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('Unit Value',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('Total Value',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+              DataColumn(
+                  label: Center(child: Text('Remarks',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white)))),
+            ],
+            rows: _paginatedItems.map((item) {
+              return DataRow(cells: [
+                DataCell(Text(item['name']?.toString() ?? 'N/A')),
+                DataCell(Text(item['description']?.toString() ?? 'N/A')),
+                DataCell(Text(item['quantity']?.toString() ?? 'N/A')),
+                DataCell(Text(item['ORIGINAL_QUANTITY']?.toString() ?? 'N/A')),
+                DataCell(Text(item['ics']?.toString() ?? 'N/A')),
+                DataCell(Text(item['are_no']?.toString() ?? 'N/A')),
+                DataCell(Text(item['prop_no']?.toString() ?? 'N/A')),
+                DataCell(Text(item['serial_no']?.toString() ?? 'N/A')),
+                DataCell(Text('₱ ${(item['unit_value'] ?? 0.0).toStringAsFixed(2)}')),
+                DataCell(Text('₱ ${(item['total_value'] ?? 0.0).toStringAsFixed(2)}')),
+                DataCell(Text(item['remarks']?.toString() ?? 'N/A')),
+              ]);
+            }).toList(),
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+
               ],
             ),
 ),
