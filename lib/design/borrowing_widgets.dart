@@ -12,6 +12,7 @@ Future<bool> showBorrowConfirmationDialog({
   required String borrowerName,
   required String ownerName,
   required int itemId,
+  required int distributedItemId,
 }) async {
   logger.i(
       "🛑 Borrow Confirmation Dialog - Item: $itemName | itemId: $itemId | owner: $ownerName | borrower: $borrowerName");

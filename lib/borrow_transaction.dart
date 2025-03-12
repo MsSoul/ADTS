@@ -16,6 +16,7 @@ class BorrowTransaction extends StatefulWidget {
   final int ownerId;
   final int currentDptId;
   final String borrower;
+  final int distributedItemId;
 
   const BorrowTransaction({
     super.key,
@@ -28,6 +29,7 @@ class BorrowTransaction extends StatefulWidget {
     required this.owner,
     required this.ownerId,
     required this.borrower,
+    required this.distributedItemId
   });
 
   @override
@@ -199,6 +201,7 @@ Widget build(BuildContext context) {
               ownerName: widget.owner,
               borrowerName: widget.borrower,
               itemId: widget.itemId,
+              distributedItemId: widget.distributedItemId,
             );
 
             if (confirm) {
@@ -208,6 +211,7 @@ Widget build(BuildContext context) {
                 itemId: widget.itemId,
                 quantity: qty,
                 currentDptId: widget.currentDptId,
+                distributedItemId: widget.distributedItemId,
                 context: context,
               );
 
@@ -241,6 +245,7 @@ Widget build(BuildContext context) {
     required int itemId,
     required int quantity,
     required int currentDptId,
+    required int distributedItemId,
     required BuildContext context,
   }) async {
     BorrowTransactionApi borrowApi = BorrowTransactionApi();
@@ -251,13 +256,16 @@ Widget build(BuildContext context) {
       itemId: itemId,
       quantity: quantity,
       currentDptId: currentDptId,
+      distributedItemId: distributedItemId,
     );
     logger.i("📤 Sending borrow request: {"
         " borrower_emp_id: ${widget.empId},"
         " owner_emp_id: ${widget.ownerId},"
+        " distributedItemId : ${widget.distributedItemId},"
         " itemId: ${widget.itemId},"
         " quantity: ${qtyController.text},"
         " currentDptId: ${widget.currentDptId}"
+
         " }");
 
     return success;
