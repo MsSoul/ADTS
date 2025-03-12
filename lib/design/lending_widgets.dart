@@ -262,29 +262,54 @@ Widget buildActionButtons(
                 context: context,
                 barrierDismissible: false,
                 builder: (BuildContext successContext) {
-                  return AlertDialog(
-                    title: const Text('🎉 Success!'),
-                    content: Text(response['message'] ??
-                        'Request submitted successfully!'),
-                    actions: [
-                      ElevatedButton(
-                        onPressed: () {
-                          logger.i("🎉 Success dialog closed by user.");
-                          Navigator.of(successContext)
-                              .pop(); // Close Success Dialog
-                          Navigator.of(context).pop(); // Close Main Dialog
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
+                  return Dialog(
+  backgroundColor: Colors.transparent,
+  child: IntrinsicWidth(
+    child: AlertDialog(
+      backgroundColor: Colors.white,
+      title: const Center(
+        child: Text(
+          '🎉',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 40), // Adjust emoji size
+        ),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min, // Ensures the height is minimal
+        children: [
+          SizedBox(
+            width: 250, // Set a max width to keep it compact
+            child: Center(
+              child: Text(
+                response['message'] ?? 'Request submitted successfully!',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ],
+      ),
+      actionsAlignment: MainAxisAlignment.center, // Centers the button
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            logger.i("🎉 Success dialog closed by user.");
+            Navigator.of(successContext).pop(); // Close Success Dialog
+            Navigator.of(context).pop(); // Close Main Dialog
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primaryColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  ),
+);
+
                 },
               );
             } catch (e) {

@@ -21,7 +21,7 @@ class _NotifScreenState extends State<NotifScreen> {
   final Logger logger = Logger();
   List<Map<String, dynamic>> notifications = [];
   bool isLoading = true;
-  String selectedFilter = "Newest"; // Default sorting option
+  String selectedFilter = "Unread First"; // Default sorting option
   bool showAllNotifications = false; // Flag to control visibility
 
   @override
@@ -285,6 +285,7 @@ class _NotifScreenState extends State<NotifScreen> {
                                     showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
+                                        backgroundColor: Colors.white,
                                         title: const Text("Notification"),
                                         content: SingleChildScrollView(
                                           child: Text(notif['message'] ??

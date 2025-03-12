@@ -95,71 +95,60 @@ class BorrowTransactionState extends State<BorrowTransaction> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Dialog(
-          insetPadding: EdgeInsets.symmetric(
-            horizontal: constraints.maxWidth * 0.05,
-            vertical: constraints.maxHeight * 0.05,
-          ),
-          backgroundColor: Colors.transparent,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context)
-                    .viewInsets
-                    .bottom, // Adjust for keyboard
-              ),
-              child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: constraints.maxWidth * 0.9),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildBorrowDialogTitle(),
-                      buildInfoBox('Item Name:', widget.itemName),
-                      buildInfoBox('Description:', widget.description),
-                      buildInfoBox(
-                        'Owner:',
-                        widget.owner
-                            .split(' ')
-                            .map((word) => word.isNotEmpty
-                                ? word[0].toUpperCase() +
-                                    word.substring(1).toLowerCase()
-                                : '')
-                            .join(' '),
-                      ),
-                      isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : buildInfoBox(
-                              'Borrower:', borrowerName ?? "Unknown"),
-                      buildTextField(
-                        'Quantity:',
-                        'Enter Quantity',
-                        controller: qtyController,
-                        onChanged: _validateQuantity,
-                        errorText: quantityError,
-                      ),
-                      buildBorrowActionButton(context, qtyController, widget),
-                    ],
-                  ),
+@override
+Widget build(BuildContext context) {
+  return LayoutBuilder(
+    builder: (context, constraints) => Dialog(
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: constraints.maxWidth * 0.05,
+        vertical: constraints.maxHeight * 0.05,
+      ),
+      backgroundColor: Colors.transparent,
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.9),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildBorrowDialogTitle(),
+                buildInfoBox('Item Name:', widget.itemName),
+                buildInfoBox('Description:', widget.description),
+                buildInfoBox(
+                  'Owner:',
+                  widget.owner
+                      .split(' ')
+                      .map((word) => word.isNotEmpty
+                          ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+                          : '')
+                      .join(' '),
                 ),
-              ),
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : buildInfoBox('Borrower:', borrowerName ?? "Unknown"),
+                buildTextField(
+                  'Quantity:',
+                  'Enter Quantity',
+                  controller: qtyController,
+                  onChanged: _validateQuantity,
+                  errorText: quantityError,
+                ),
+                buildBorrowActionButton(context, qtyController, widget),
+              ],
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      ),
+    ),
+  );
+}
+
 
   Widget buildBorrowActionButton(
     BuildContext context,

@@ -8,10 +8,10 @@ import 'services/user_api.dart';
 import 'services/notif_api.dart';
 import 'update_user.dart';
 import 'design/nav_bar.dart'; // Import for unreadNotifCount
+import 'services/config.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferences.getInstance(); 
   runApp(const MyApp());
 }
 
@@ -39,7 +39,7 @@ class LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool obscurePassword = true;
   final UserApi _userApi = UserApi();
-  final NotifApi _notifApi = NotifApi(baseUrl: "https://your-api-url.com"); // ✅ Add Notif API
+  final NotifApi _notifApi = NotifApi(baseUrl: Config.baseUrl); // ✅ Fixed NotifApi initialization
 
   Future<void> _handleLogin() async {
     debugPrint("Login Attempt with ID: ${_usernameController.text}");
@@ -68,6 +68,7 @@ class LoginScreenState extends State<LoginScreen> {
       String? firstName = response["firstLetter"]?.toString();
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
+
       if (firstName != null && firstName.isNotEmpty) {
         await prefs.setString('firstLetter', firstName);
         debugPrint("Stored First Letter: $firstName");
@@ -138,7 +139,10 @@ class LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
 
                     // Username Field
-                    buildTextField('ID Number', controller: _usernameController),
+                    buildTextField(
+                      'ID Number',
+                      controller: _usernameController,
+                    ),
                     const SizedBox(height: 10),
 
                     // Password Field with Eye Icon
@@ -152,6 +156,8 @@ class LoginScreenState extends State<LoginScreen> {
                         });
                       },
                     ),
+                    const SizedBox(height: 10),
+
                     // Forgot Password Button
                     buildForgotPasswordButton(context),
 

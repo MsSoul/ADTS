@@ -48,7 +48,7 @@ Widget buildTextField(
           borderSide: const BorderSide(color: AppColors.primaryColor),
           borderRadius: BorderRadius.circular(10),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12), // Adjust padding for text alignment
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12), 
         suffixIcon: onToggleVisibility != null
             ? IconButton(
                 icon: Icon(

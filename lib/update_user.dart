@@ -21,10 +21,12 @@ class UpdateUserScreenState extends State<UpdateUserScreen> {
   bool _obscurePassword = true; // Toggle password visibility
 
   bool get _isFormValid {
-    return _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+    return _emailController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty;
   }
 
-  Widget buildCustomTextField(String label, TextEditingController controller, {bool obscureText = false}) {
+  Widget buildCustomTextField(String label, TextEditingController controller,
+      {bool obscureText = false}) {
     return TextField(
       controller: controller,
       obscureText: obscureText,
@@ -60,7 +62,8 @@ class UpdateUserScreenState extends State<UpdateUserScreen> {
           borderRadius: BorderRadius.circular(10),
         ),
         suffixIcon: IconButton(
-          icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+          icon:
+              Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
           onPressed: () {
             setState(() {
               _obscurePassword = !_obscurePassword;
@@ -73,7 +76,8 @@ class UpdateUserScreenState extends State<UpdateUserScreen> {
 
   Future<void> _updateUser() async {
     if (!_isFormValid) {
-      debugPrint("Form is incomplete. Email: \${_emailController.text}, Password: \${_passwordController.text}");
+      debugPrint(
+          "Form is incomplete. Email: \${_emailController.text}, Password: \${_passwordController.text}");
       showIncompleteFormDialog(context);
       return;
     }
@@ -111,6 +115,7 @@ class UpdateUserScreenState extends State<UpdateUserScreen> {
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: const Text("Success"),
+        backgroundColor: Colors.white,
         content: Text(message),
         actions: [
           TextButton(
@@ -135,6 +140,7 @@ class UpdateUserScreenState extends State<UpdateUserScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.red,
         title: const Text("Error"),
         content: Text(message),
         actions: [
