@@ -70,75 +70,63 @@ class MainDesignState extends State<MainDesign> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: RichText(
-          text: const TextSpan(
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Copperplate',
-              letterSpacing: 1.5,
-            ),
-            children: [
-              TextSpan(text: 'A', style: TextStyle(color: Color(0xFF489C54), fontSize: 22)),
-              TextSpan(text: 'SSET ', style: TextStyle(color: Colors.black)),
-              TextSpan(text: 'D', style: TextStyle(color: Color(0xFF375BA5), fontSize: 22)),
-              TextSpan(text: 'ISTRIBUTION &', style: TextStyle(color: Colors.black)),
-              TextSpan(text: '  T', style: TextStyle(color: Color(0xFF7b5d38), fontSize: 22)),
-              TextSpan(text: 'RACKING ', style: TextStyle(color: Colors.black)),
-              TextSpan(text: 'S', style: TextStyle(color: Color(0xFFEBBC31), fontSize: 22)),
-              TextSpan(text: 'YSTEM', style: TextStyle(color: Colors.black)),
-            ],
+Widget build(BuildContext context) {
+  return AppBar(
+    title: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Image.asset(
+        'assets/adts_appbar.png',
+        height: 40, // Adjust height as needed
+        fit: BoxFit.contain,
+      ),
+    ),
+    backgroundColor: Colors.white,
+    iconTheme: const IconThemeData(color: Colors.black),
+    elevation: 0,
+    leading: Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: CircleAvatar(
+        radius: 30,
+        backgroundColor: AppColors.primaryColor,
+        child: Text(
+          firstLetter,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      backgroundColor: Colors.white,
-      iconTheme: const IconThemeData(color: Colors.black),
-      elevation: 0,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 16.0),
-        child: CircleAvatar(
-          radius: 30,
-          backgroundColor: AppColors.primaryColor,
-          child: Text(
-            firstLetter, 
-            style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
-          ),
+    ),
+    actions: [
+      IconButton(
+        onPressed: () {
+          debugPrint("Logging out and returning to login screen...");
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false, // Removes all previous routes
+          );
+        },
+        icon: const Icon(
+          Icons.exit_to_app,
+          color: AppColors.primaryColor,
+          size: 32,
         ),
       ),
+    ],
+    flexibleSpace: Container(
+      decoration: const BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.1),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
-      actions: [
-        IconButton(
-          onPressed: () {
-            debugPrint("Logging out and returning to login screen...");
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false, // Removes all previous routes
-            );
-          },
-          icon: const Icon(
-            Icons.exit_to_app,
-            color: AppColors.primaryColor,
-            size: 32,
-          ),
-        ),
-      ],
-
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.1),
-              blurRadius: 10,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

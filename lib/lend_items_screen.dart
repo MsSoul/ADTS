@@ -55,6 +55,7 @@ class _LendingItemsScreenState extends State<LendingItemsScreen> {
         allItems = items.map((item) {
           return {
             ...item,
+             'distributedItemId': item['distributedItemId'] ?? 0,
             'ITEM_ID': item['ITEM_ID'],
             'quantity': item['quantity'] as int? ?? 0,  
           };

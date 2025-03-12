@@ -68,6 +68,7 @@ flutter:
     - assets/adts_logo.png
     - assets/adts-logo.png
     - assets/adts.png
+    - assets/adts_appbar.png
 
 
   # The following line ensures that the Material Icons font is
