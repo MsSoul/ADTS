@@ -62,7 +62,7 @@ class ItemsApi {
       throw Exception('❌ Error fetching items. Please try again.');
     }
   }
-
+//fetching borrowed items t
   Future<List<Map<String, dynamic>>> fetchBorrowedItems(int empId) async {
     log.i("🔄 Fetching borrowed items for empId: $empId");
 

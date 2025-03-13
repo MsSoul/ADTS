@@ -141,6 +141,7 @@ class LendingTransactionState extends State<LendingTransaction> {
       }
     });
   }
+
 Widget _buildBorrowerField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,6 +160,8 @@ Widget _buildBorrowerField() {
       ],
     );
   }
+
+
 Widget _buildDropdown() {
   return SizedBox(
     width: 130, 
