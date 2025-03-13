@@ -10,8 +10,7 @@ class DashboardScreen extends StatefulWidget {
   final int empId;
   final int currentDptId;
 
-  const DashboardScreen(
-      {super.key, required this.empId, required this.currentDptId});
+  const DashboardScreen({super.key, required this.empId, required this.currentDptId});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -27,13 +26,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _currentPage = 0;
   final int _itemsPerPage = 10;
   final TextEditingController _searchController = TextEditingController();
-  String _selectedFilter = "All";
+  String _selectedFilter = "All"; // Maintain selected filter
 
   @override
   void initState() {
     super.initState();
     _loadItems();
     _searchController.addListener(_filterItems);
+  }
+
+  void _filterItems() {
+    setState(() {
+      _applyFilter();
+    });
   }
 
   @override
@@ -43,56 +48,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadItems() async {
-  log.i("Fetching items for emp_id: ${widget.empId}");
-  try {
-    final items = await _itemsApi.fetchItems(widget.empId);
-    final borrowedItems = await _itemsApi.fetchBorrowedItems(widget.empId);
+    log.i("Fetching items for emp_id: ${widget.empId}");
+    try {
+      final items = await _itemsApi.fetchItems(widget.empId);
+      final borrowedItems = await _itemsApi.fetchBorrowedItems(widget.empId);
 
-    log.d("📦 Owned Items: $items");
-    log.d("📦 Borrowed Items: $borrowedItems");
-
-    if (mounted) {
-      setState(() {
-        _items = items;
-        _borrowedItems = borrowedItems;
-        _filteredItems = [...items, ...borrowedItems];
-        _isLoading = false;
-      });
-    }
-    log.i("✅ Successfully loaded ${items.length} owned items.");
-    log.i("✅ Successfully loaded ${borrowedItems.length} borrowed items.");
-  } catch (e, stacktrace) {
-    log.e("❌ Error loading items: $e", error: e, stackTrace: stacktrace);
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = "Error fetching items. Please check your connection.";
-      });
+      if (mounted) {
+        setState(() {
+          _items = items;
+          _borrowedItems = borrowedItems;
+          _applyFilter(); // Ensure filter is applied after loading data
+          _isLoading = false;
+        });
+      }
+    } catch (e, stacktrace) {
+      log.e("❌ Error loading items: $e", error: e, stackTrace: stacktrace);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = "Error fetching items. Please check your connection.";
+        });
+      }
     }
   }
-}
 
-
-  void _filterItems() {
-    String query = _searchController.text.toLowerCase();
+  void _applyFilter() {
     setState(() {
-      List<Map<String, dynamic>> itemsToFilter = [];
-
       if (_selectedFilter == "All") {
-        itemsToFilter = [..._items, ..._borrowedItems];
+        _filteredItems = [..._items, ..._borrowedItems];
       } else if (_selectedFilter == "Owned") {
-        itemsToFilter = _items;
+        _filteredItems = _items;
       } else if (_selectedFilter == "Borrowed") {
-        itemsToFilter = _borrowedItems;
+        _filteredItems = _borrowedItems;
       }
-      _filteredItems = itemsToFilter.where((item) {
-        final queryLower = query.toLowerCase();
-
-        return item.values.any((value) =>
-            value != null &&
-            value.toString().toLowerCase().contains(queryLower));
-      }).toList();
-
       _currentPage = 0;
     });
   }
@@ -100,8 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Map<String, dynamic>> get _paginatedItems {
     final startIndex = _currentPage * _itemsPerPage;
     final endIndex = startIndex + _itemsPerPage;
-    return _filteredItems.sublist(
-        startIndex, endIndex.clamp(0, _filteredItems.length));
+    return _filteredItems.sublist(startIndex, endIndex.clamp(0, _filteredItems.length));
   }
 
   void _nextPage() {
@@ -127,11 +114,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             const Text(
               'Dashboard',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: AppColors.primaryColor,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: AppColors.primaryColor),
             ),
             SizedBox(
               height: 40,
@@ -139,25 +122,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: 'Search Items',
-                  prefixIcon: const Icon(Icons.search,
-                      size: 18, color: AppColors.primaryColor),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.primaryColor),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   filled: true,
                   fillColor: Colors.white,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                        color: AppColors.primaryColor, width: 1),
+                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                        color: AppColors.primaryColor, width: 2),
+                    borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
                   ),
                 ),
                 style: const TextStyle(fontSize: 14),
-                onChanged: (value) => _filterItems(),
               ),
             ),
           ],
@@ -165,17 +143,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         toolbarHeight: 80,
       ),
       body: RefreshIndicator(
-        onRefresh: _loadItems,
+        onRefresh: () async {
+          await _loadItems();
+        },
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _errorMessage.isNotEmpty
                 ? Center(
                     child: Text(
                       '⚠ $_errorMessage',
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryColor),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
                     ),
                   )
                 : Column(
@@ -184,41 +161,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: DropdownButton<String>(
-                              value: _selectedFilter,
-                              items: ["All", "Owned", "Borrowed"].map((filter) {
-                                return DropdownMenuItem(
-                                  value: filter,
-                                  child: Text(filter,
-                                      style:
-                                          const TextStyle(color: Colors.black)),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedFilter = value!;
-                                  _filterItems();
-                                });
-                              },
-                              dropdownColor: AppColors.primaryColor,
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: DropdownButtonHideUnderline(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppColors.primaryColor, width: 1),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                child: DropdownButton<String>(
+                                  value: _selectedFilter,
+                                  items: ["All", "Owned", "Borrowed"].map((filter) {
+                                    return DropdownMenuItem(
+                                      value: filter,
+                                      child: Text(filter, style: const TextStyle(color: Colors.black)),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedFilter = value!;
+                                      _applyFilter();
+                                    });
+                                  },
+                                  dropdownColor: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                           Row(
                             children: [
-                              IconButton(
-                                icon: const Icon(Icons.arrow_back),
-                                onPressed:
-                                    _currentPage > 0 ? _previousPage : null,
-                              ),
+                              IconButton(icon: const Icon(Icons.arrow_back), onPressed: _currentPage > 0 ? _previousPage : null),
                               Text("Page ${_currentPage + 1} of $totalPages"),
                               IconButton(
                                 icon: const Icon(Icons.arrow_forward),
-                                onPressed: (_currentPage + 1) * _itemsPerPage <
-                                        _filteredItems.length
-                                    ? _nextPage
-                                    : null,
+                                onPressed: (_currentPage + 1) * _itemsPerPage < _filteredItems.length ? _nextPage : null,
                               ),
                             ],
                           ),
@@ -230,11 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(10.0),
-                              child: DashboardTable(
-                                items: _paginatedItems,
-                                selectedFilter:
-                                    _selectedFilter, // Pass selected filter
-                              ),
+                              child: DashboardTable(items: _paginatedItems, selectedFilter: _selectedFilter),
                             ),
                           ],
                         ),
